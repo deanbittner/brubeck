@@ -1,14 +1,18 @@
 GIT_SHA = $(shell git rev-parse --short HEAD)
 TARGET = brubeck
-LIBS = -lm -pthread -lrt -lcrypto -ljansson
+#LIBS = -lm -pthread -lrt -lcrypto -ljansson
+LIBS = -lm -pthread -lrt ../jansson-2.7/src/.libs/libjansson.a
 CC = gcc
 CXX = g++
-CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\"
+CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -I../jansson-2.7/src/ -Isrc -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\"
 
 .PHONY: default all clean
 
 default: $(TARGET)
 all: default
+
+#	src/http.c \
+#	src/samplers/statsd-secure.c \
 
 SOURCES = \
 	src/backend.c \
@@ -17,22 +21,20 @@ SOURCES = \
 	src/city.c \
 	src/histogram.c \
 	src/ht.c \
-	src/http.c \
 	src/internal_sampler.c \
 	src/log.c \
 	src/metric.c \
 	src/sampler.c \
-	src/samplers/statsd-secure.c \
 	src/samplers/statsd.c \
 	src/server.c \
 	src/setproctitle.c \
 	src/slab.c \
 	src/utils.c
 
-ifndef BRUBECK_NO_HTTP
-	LIBS += -lmicrohttpd
-	CFLAGS += -DBRUBECK_HAVE_MICROHTTPD
-endif
+# ifndef BRUBECK_NO_HTTP
+# 	LIBS += -lmicrohttpd
+# 	CFLAGS += -DBRUBECK_HAVE_MICROHTTPD
+# endif
 
 OBJECTS = $(patsubst %.c, %.o, $(SOURCES))
 HEADERS = $(wildcard src/*.h) $(wildcard src/libcuckoo/*.h)

@@ -25,7 +25,8 @@ enum brubeck_aggregate_t {
 enum {
 	BRUBECK_EXPIRE_DISABLED = 0,
 	BRUBECK_EXPIRE_INACTIVE = 1,
-	BRUBECK_EXPIRE_ACTIVE = 2
+	BRUBECK_EXPIRE_ACTIVE = 2,
+	BRUBECK_EXPIRE_NEVER = 100
 };
 
 struct brubeck_metric {

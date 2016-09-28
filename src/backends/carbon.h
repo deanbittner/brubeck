@@ -2,7 +2,8 @@
 #define __BRUBECK_CARBON_H__
 
 #define MAX_PICKLE_SIZE 256
-#define PICKLE_BUFFER_SIZE 4096
+/* DAB ... this was 4096, too small */
+#define PICKLE_BUFFER_SIZE 32768
 #define PICKLE1_SIZE(key_len) (32 + key_len)
 
 struct brubeck_carbon {

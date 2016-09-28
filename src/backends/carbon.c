@@ -1,5 +1,8 @@
 #include <stddef.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/tcp.h>
 #include "brubeck.h"
 
 static bool carbon_is_connected(void *backend)
@@ -149,12 +152,12 @@ static inline void pickle1_init(struct pickler *buf)
 static void pickle1_flush(void *backend)
 {
 	static const uint8_t trail[] = {'e', '.'};
-
 	struct brubeck_carbon *carbon = (struct brubeck_carbon *)backend;
 	struct pickler *buf = &carbon->pickler;
 
 	uint32_t *buf_lead;
 	ssize_t wr;
+  int onoff = 1;
 	
 	if (buf->pt == 1 || !carbon_is_connected(carbon))
 		return;
@@ -165,7 +168,15 @@ static void pickle1_flush(void *backend)
 	buf_lead = (uint32_t *)buf->ptr;
 	*buf_lead = htonl((uint32_t)buf->pos - 4);
 
+  /* DAB ... set TCP_NODELAY, but just for flush */
+  onoff = 1;
+  setsockopt(carbon->out_sock, IPPROTO_TCP, TCP_NODELAY, &onoff, sizeof(onoff));
+
 	wr = write_in_full(carbon->out_sock, buf->ptr, buf->pos);
+
+  /* DAB ... unset */
+  onoff = 0;
+  setsockopt(carbon->out_sock, IPPROTO_TCP, TCP_NODELAY, &onoff, sizeof(onoff));
 
 	pickle1_init(&carbon->pickler);
 	if (wr < 0) {
