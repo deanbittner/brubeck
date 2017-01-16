@@ -1,9 +1,10 @@
 GIT_SHA = $(shell git rev-parse --short HEAD)
 TARGET = brubeck
-LIBS = -lm -pthread -lrt -lcrypto -ljansson
+#LIBS = -lm -pthread -lrt -lcrypto -ljansson
+LIBS = -lm -lcrypto -L/opt/local/lib -ljansson
 CC = gcc
 CXX = g++
-CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\"
+CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\"
 
 .PHONY: default all clean
 
@@ -11,13 +12,13 @@ default: $(TARGET)
 all: default
 
 SOURCES = \
+	src/timing_mach.c \
 	src/backend.c \
 	src/backends/carbon.c \
 	src/bloom.c \
 	src/city.c \
 	src/histogram.c \
 	src/ht.c \
-	src/http.c \
 	src/internal_sampler.c \
 	src/log.c \
 	src/metric.c \
@@ -29,10 +30,12 @@ SOURCES = \
 	src/slab.c \
 	src/utils.c
 
-ifndef BRUBECK_NO_HTTP
-	LIBS += -lmicrohttpd
-	CFLAGS += -DBRUBECK_HAVE_MICROHTTPD
-endif
+#	src/http.c \
+
+#ifndef BRUBECK_NO_HTTP
+#	LIBS += -lmicrohttpd
+#	CFLAGS += -DBRUBECK_HAVE_MICROHTTPD
+#endif
 
 OBJECTS = $(patsubst %.c, %.o, $(SOURCES))
 HEADERS = $(wildcard src/*.h) $(wildcard src/libcuckoo/*.h)

@@ -20,7 +20,9 @@ static void *backend__thread(void *_ptr)
 	for (;;) {
 		struct timespec now, then;
 
-		clock_gettime(CLOCK_MONOTONIC, &then);
+		//clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &then, NULL);
+		clock_nanosleep_abstime(&then, NULL);
+		//		clock_gettime(CLOCK_MONOTONIC, &then);
 		then.tv_sec += self->sample_freq;
 
 		if (!self->connect(self)) {
@@ -38,7 +40,8 @@ static void *backend__thread(void *_ptr)
 				self->flush(self);
 		}
 
-		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &then, NULL);
+		clock_nanosleep_abstime(&then, NULL);
+		//		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &then, NULL);
 	}
 	return NULL;
 }

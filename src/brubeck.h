@@ -30,6 +30,8 @@ typedef uint64_t hash_t;
 struct brubeck_server;
 struct brubeck_metric;
 
+#include "timing_mach.h"
+#include "mac_spinlock.h"
 #include "jansson.h"
 #include "log.h"
 #include "utils.h"
