@@ -154,44 +154,48 @@ static char *get_config_name(const char *full_path)
 
 static void load_config(struct brubeck_server *server, const char *path)
 {
-	json_error_t error;
+  json_error_t error;
 
-	/* required */
-	int capacity;
-	json_t *backends, *samplers;
+  /* required */
+  int capacity;
+  json_t *backends, *samplers;
 
-	/* optional */
-	int expire = 0;
+  /* optional */
+  int expire = 0;
+  char *http = NULL;
 
-	server->name = "brubeck";
-	server->config_name = get_config_name(path);
-	server->dump_path = NULL;
-	server->config = json_load_file(path, 0, &error);
-	if (!server->config) {
-		die("failed to load config file, %s (%s:%d:%d)",
-				error.text, error.source, error.line, error.column);
-	}
+  server->name = "brubeck";
+  server->config_name = get_config_name(path);
+  server->dump_path = NULL;
+  server->config = json_load_file(path, 0, &error);
+  if (!server->config) {
+    die("failed to load config file, %s (%s:%d:%d)",
+	error.text, error.source, error.line, error.column);
+  }
 
-	json_unpack_or_die(server->config,
-		"{s:s, s:s, s:i, s:o, s:o, s?:i}",
-		"server_name", &server->name,
-		"dumpfile", &server->dump_path,
-		"capacity", &capacity,
-		"backends", &backends,
-		"samplers", &samplers,
-		"expire", &expire);
+  json_unpack_or_die(server->config,
+		     "{s?:s, s:s, s:i, s:o, s:o, s?:s, s?:i, s?:i, s?:s}",
+		     "server_name", &server->name,
+		     "dumpfile", &server->dump_path,
+		     "capacity", &capacity,
+		     "backends", &backends,
+		     "samplers", &samplers,
+		     "http", &http,
+		     "expire", &expire,
+                     "log_all_metrics", &gh_log_all_metrics,
+                     "log_all_regex", &gh_log_all_regex);
 
-	gh_log_set_instance(server->name);
+  gh_log_set_instance(server->name);
 
-	server->metrics = brubeck_hashtable_new(1 << capacity);
-	if (!server->metrics)
-	    die("failed to initialize hash table (size: %lu)", 1ul << capacity);
+  server->metrics = brubeck_hashtable_new(1 << capacity);
+  if (!server->metrics)
+    die("failed to initialize hash table (size: %lu)", 1ul << capacity);
 
-	load_backends(server, backends);
-	load_samplers(server, samplers);
+  load_backends(server, backends);
+  load_samplers(server, samplers);
 
-  server->expire = 0;
-	if (expire) server->expire = expire;
+  //	if (http) brubeck_http_endpoint_init(server, http);
+  //  if (expire) server->fd_expire = load_timerfd(expire);
 }
 
 void brubeck_server_init(struct brubeck_server *server, const char *config)
@@ -202,8 +206,8 @@ void brubeck_server_init(struct brubeck_server *server, const char *config)
    * backends get disconnected */
   signal(SIGPIPE, SIG_IGN);
 
-	/* init the memory allocator */
-	brubeck_slab_init(&server->slab);
+  /* init the memory allocator */
+  brubeck_slab_init(&server->slab);
 
   /* init the samplers and backends */
   load_config(server, config);

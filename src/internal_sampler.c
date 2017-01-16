@@ -30,6 +30,7 @@ brubeck_internal__sample(struct brubeck_metric *metric, brubeck_sample_cb sample
 	}
 
 	/* Secure statsd endpoint */
+  /*
 	WITH_SUFFIX(".secure.failed") {
 		value = brubeck_atomic_swap(&stats->live.secure.failed, 0);
 		stats->sample.secure.failed = value;
@@ -53,12 +54,12 @@ brubeck_internal__sample(struct brubeck_metric *metric, brubeck_sample_cb sample
 		stats->sample.secure.replayed = value;
 		sample(key, (value_t)value, opaque);
 	}
-
+  */
 	/*
 	 * Mark the metric as active so it doesn't get disabled
 	 * by the inactive metrics pruner
 	 */
-	metric->expire = BRUBECK_EXPIRE_ACTIVE;
+	metric->expire = BRUBECK_EXPIRE_NEVER;
 }
 
 void brubeck_internal__init(struct brubeck_server *server)
@@ -74,6 +75,7 @@ void brubeck_internal__init(struct brubeck_server *server)
 		die("Failed to initialize internal stats sampler");
 
 	internal->as.other = &server->internal_stats;
+	internal->expire = BRUBECK_EXPIRE_NEVER;
 
 	backend = brubeck_metric_shard(server, internal);
 	server->internal_stats.sample_freq = backend->sample_freq;
