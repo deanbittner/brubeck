@@ -1,0 +1,85 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          brubeck
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Brubeck Statsd
+# Description:       High-performance statsd implementation used at github
+### END INIT INFO
+
+CONFIG=/etc/brubeck/config.json
+PROGRAM=/usr/local/sbin/brubeck
+LOG=/var/log/brubeck.log
+ARGS="--config=$CONFIG --log=$LOG"
+PIDFILE=/var/run/brubeck.pid
+
+# pull in sysconfig settings
+[ -f $CONFIG ] && [ -f $PROGRAM ]
+
+RETVAL=0
+prog="brubeck"
+
+start()
+{
+    echo -n "Starting $prog:"
+    $PROGRAM $ARGS > /dev/null 2>&1 &
+    PID=$!
+    echo $PID > $PIDFILE
+    RETVAL=$?
+    [ "$RETVAL" = 0 ] && touch /var/lock/subsys/$prog
+    echo
+}
+
+stop()
+{
+    echo -n "Stopping $prog:"
+    if [ -f $PIDFILE ] ; then
+	/bin/kill -SIGTERM `cat $PIDFILE`
+    fi
+    RETVAL=$?
+    [ "$RETVAL" = 0 ] && rm -f /var/lock/subsys/$prog && rm -f $PIDFILE
+    echo
+}
+
+reload()
+{
+    echo -n "Reloading $prog:"
+    if [ -f $PIDFILE ] ; then
+	kill -HUP `cat $PIDFILE`
+    fi
+    RETVAL=$?
+    echo
+}
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    restart)
+	stop
+	start
+	;;
+    reload)
+	reload
+	;;
+    condrestart)
+	if [ -f /var/lock/subsys/$prog ] ; then
+	    stop
+	    # avoid race
+	    sleep 3
+	    start
+	fi
+	;;
+    *)
+	echo $"Usage: $0 {start|stop|restart|reload|condrestart}"
+	RETVAL=1
+esac
+
+exit $RETVAL
+
+

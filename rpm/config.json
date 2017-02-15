@@ -1,0 +1,27 @@
+{
+    "sharding" : false,
+    "server_name" : "brubeck_hostname_here",
+    "dumpfile" : "/var/log/brubeck.dump",
+    "capacity" : 16 ,
+    "backends" :
+    [
+	{
+	    "type" : "carbon",
+	    "address" : "graphite_host_here",
+	    "port" : 2004,
+	    "frequency" : 10,
+	    "pickle" : true
+	}
+    ],
+    "samplers" :
+    [
+	{
+	    "type" : "statsd",
+	    "address" : "0.0.0.0",
+	    "port" : 8125,
+	    "workers" : 8,
+	    "multisock" : false,
+	    "multimsg" : 0
+	}
+    ]
+}
