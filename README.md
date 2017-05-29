@@ -3,6 +3,16 @@
 Brubeck is a [statsd](https://github.com/etsy/statsd)-compatible stats
 aggregator written in C.
 
+## What's differnet about this brubeck implementation.
+A number of things.
+- The http server has been removed so no libmicrohttpd and dependencies.
+- Secure statsd has been removed, removing the dependency on openssl.
+- Metric expiry has been removed along with its defects, including zero value metrics, when no metric has been received, up to the expiry period following the last receipt of a metric as well as the race condition between metric sending and metric expiry.
+- multimsg processing has been fixed to process only the number of multi messages received not the max number that can be received.
+- Metrics will not aggregate as a single timebucket during a connection outage with Graphite, and then send on reconnect.  Metrics that cannot send will flush/ blank instead of aggregate and then send upon reconnect, avoiding sending misleading metrics.
+- Logging of metric activities to log is enabled by metric name regex to track receipt and sending of metrics.
+- With a few makefile tweaks, it builds for mac os x.
+
 ## What is statsd?
 
 Statsd is a metrics aggregator for Graphite (and other data storage backends). This
@@ -17,7 +27,7 @@ infrastructure, you probably want a statsd-compatible aggregator in front of it.
 
 - Brubeck is missing many of the features of the original StatsD. We've only implemented what we felt was necessary for our metrics stack.
 
-- Brubeck only runs on Linux. It won't even build on Mac OS X.
+- The original Brubeck only runs on Linux. It won't even build on Mac OS X.  This one does, with a bit of Makefile tweaking as the missing Linux calls have been stubbed in for Mac OS X.
 
 - Some of the performance features require a (moderately) recent version of the kernel that you may not have.
 
@@ -32,9 +42,9 @@ Brubeck has the following dependencies:
 
 - Jansson (`libjansson-dev` on Debian) to load the configuration (version 2.5+ is required)
 
-- OpenSSL (`libcrypto`) if you're building StatsD-Secure support
+- This is no longer required in this fork.  The original required OpenSSL (`libcrypto`) to build StatsD-Secure support
 
-- libmicrohttpd (`libmicrohttpd-dev`) to have an internal HTTP stats endpoint. Build with `BRUBECK_NO_HTTP` to disable this.
+- This is no longer required, in this fork, as the web server has been removed.  The original required libmicrohttpd (`libmicrohttpd-dev`) to have an internal HTTP stats endpoint.  The original can Build with `BRUBECK_NO_HTTP` to disable this.  This fork simple does not included it.
 
 Build brubeck by typing:
 
@@ -72,6 +82,8 @@ Brubeck answers to the following signals:
 
 ### HTTP Endpoint
 
+This endpoint has been removed from this version.
+
 If enabled on the config file, Brubeck can provide an HTTP API to poll its status. The following routes are available:
 
 - `GET /ping`: return a short JSON payload with the current status of the daemon (just to check it's up)
@@ -96,7 +108,7 @@ The JSON file can contain the following sections:
 - `dumpfile`: a path where to store the metrics list when triggering a dump (see the section on
     Interfacing with the daemon)
 
-- `http`: if existing, this string sets the listen address and port for the HTTP API
+- The http option has been removed/ disabled in this fork.  The original had a configuration point for http -> http`: if existing, this string sets the listen address and port for the HTTP API
     
 - `backends`: an array of the different backends to load. If more than one backend is loaded,
     brubeck will function in sharding mode, distributing aggregation load evenly through all
@@ -147,7 +159,7 @@ incoming metrics from the network.
 
         - `"multimsg" : 1` if set to greater than one, Brubeck will use the `recvmmsg` syscall (available since Linux 2.6.33) to read several UDP packets (the specified amount) in a single call and reduce the amount of context switches. This doesn't improve performance much with several worker threads, but may have an effect in a limited configuration with only one thread. Make it a power of two for better results. As always, benchmark. YMMV.
 
-    - `statsd-secure`: like StatsD, but each packet has a HMAC that verifies its integrity. This is hella useful if you're running infrastructure in The Cloud (TM) (C) and you want to send back packets back to your VPN without them being tampered by third parties.
+    - `statsd-secure`: This has been removed from this fork.  In the original, it workslike StatsD, but each packet has a HMAC that verifies its integrity. This is hella useful if you're running infrastructure in The Cloud (TM) (C) and you want to send back packets back to your VPN without them being tampered by third parties.
 
         ```
         {
