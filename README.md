@@ -3,14 +3,14 @@
 Brubeck is a [statsd](https://github.com/etsy/statsd)-compatible stats
 aggregator written in C.
 
-## What's differnet about this brubeck implementation.
+## What's different about this brubeck implementation.
 A number of things.
 - The http server has been removed so no libmicrohttpd and dependencies.
 - Secure statsd has been removed, removing the dependency on openssl.
-- Metric expiry has been removed along with its defects, including zero value metrics, when no metric has been received, up to the expiry period following the last receipt of a metric as well as the race condition between metric sending and metric expiry.
-- multimsg processing has been fixed to process only the number of multi messages received not the max number that can be received.
-- Metrics will not aggregate as a single timebucket during a connection outage with Graphite, and then send on reconnect.  Metrics that cannot send will flush/ blank instead of aggregate and then send upon reconnect, avoiding sending misleading metrics.
-- Logging of metric activities to log is enabled by metric name regex to track receipt and sending of metrics.
+- Metric expiry has been removed so no zero value metrics up to the expiry period after receiving a metric, and then none in following time periods.
+- Multimsg processing has been fixed to process only the number of multi messages received not the max number that can be received.
+- Metrics will not aggregate as a single timebucket during a connection outage with Graphite, and then sent, as a single bucket on reconnect.  Metrics that cannot send will flush/ blank instead of aggregate.
+- Metrics receipt and send can be logged by regex.
 - With a few makefile tweaks, it builds for mac os x.
 
 ## What is statsd?
