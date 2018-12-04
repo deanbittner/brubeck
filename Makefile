@@ -73,16 +73,16 @@ clean:
 	-rm -f $(TEST_OBJ)
 	-rm -f $(TARGET) $(TARGET)_test
 
-distro:
+archive:
 	mkdir -p "${ID}/${VERSION_ID}";\
 	cd "${ID}/${VERSION_ID}"; \
 	tar -czvf brubeck_distro.tar.gz ../../brubeck
 
-distro_local: distro
+distro_local: archive
 	cd "${ID}/${VERSION_ID}"; \
 	cp brubeck_distro.tar.gz /tmp/.;
 
-distro_remote: distro
+distro: archive
 	cd "${ID}/${VERSION_ID}"; \
 		scp -P 22000 brubeck_distro.tar.gz trouble.bottorrent.net:brubeck_distro.tar.gz; \
 		ssh -p 22000 -tt trouble.bottorrent.net "sudo mkdir -p /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}; sudo mv brubeck_distro.tar.gz /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}; sudo chown www-data:www-data /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}/brubeck_distro.tar.gz"
