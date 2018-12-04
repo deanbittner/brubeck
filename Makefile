@@ -1,7 +1,12 @@
+
+include /etc/os-release
+ID := $(patsubst "%",%,$(ID))
+VERSION_ID := $(patsubst "%",%,$(VERSION_ID))
+
 GIT_SHA = $(shell git rev-parse --short HEAD)
 TARGET = brubeck
 #LIBS = -lm -pthread -lrt -lcrypto -ljansson
-LIBS = -lm -pthread -lrt ../jansson-2.7/src/.libs/libjansson.a
+LIBS = -lm -pthread -lrt /usr/lib/x86_64-linux-gnu/libjansson.a
 CC = gcc
 CXX = g++
 CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -I../jansson-2.7/src/ -Isrc -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\"
@@ -67,3 +72,17 @@ clean:
 	-rm -f $(OBJECTS) brubeck.o
 	-rm -f $(TEST_OBJ)
 	-rm -f $(TARGET) $(TARGET)_test
+
+distro:
+	mkdir -p "${ID}/${VERSION_ID}";\
+	cd "${ID}/${VERSION_ID}"; \
+	tar -czvf brubeck_distro.tar.gz ../../brubeck
+
+distro_local: distro
+	cd "${ID}/${VERSION_ID}"; \
+	cp brubeck_distro.tar.gz /tmp/.;
+
+distro_remote: distro
+	cd "${ID}/${VERSION_ID}"; \
+		scp -P 22000 brubeck_distro.tar.gz trouble.bottorrent.net:brubeck_distro.tar.gz; \
+		ssh -p 22000 -tt trouble.bottorrent.net "sudo mkdir -p /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}; sudo mv brubeck_distro.tar.gz /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}; sudo chown www-data:www-data /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}/brubeck_distro.tar.gz"
