@@ -37,7 +37,7 @@ extern void timespec_monoadd(struct timespec *ts_out,
 #endif
 
 /* typdef POSIX clockid_t */
-typedef int clockid_t;
+//typedef int clockid_t;
 
 /* initialize mach timing */
 int timing_mach_init (void);

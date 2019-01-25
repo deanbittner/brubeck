@@ -2,14 +2,15 @@
 include /etc/os-release
 ID := $(patsubst "%",%,$(ID))
 VERSION_ID := $(patsubst "%",%,$(VERSION_ID))
+REACTORHOME=../reactor
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
 TARGET = brubeck
-#LIBS = -lm -pthread -lrt -lcrypto -ljansson
-LIBS = -lm -pthread -lrt /usr/lib/x86_64-linux-gnu/libjansson.a
+LIBS = -lm -pthread /opt/local/lib/libcrypto.a /opt/local/lib/libjansson.a -L$(REACTORHOME)/src/net -lnet
+#LIBS = -lm -pthread -lrt /usr/lib/x86_64-linux-gnu/libjansson.a
 CC = gcc
 CXX = g++
-CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\"
+CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\" -I$(REACTORHOME)/src
 
 .PHONY: default all clean
 
@@ -18,11 +19,12 @@ all: default
 
 #	src/http.c \
 #	src/samplers/statsd-secure.c \
-
+p
 SOURCES = \
 	src/timing_mach.c \
 	src/backend.c \
 	src/backends/carbon.c \
+	src/backends/datadog.c \
 	src/bloom.c \
 	src/city.c \
 	src/histogram.c \
