@@ -83,8 +83,13 @@ void brubeck_histo_sample(
 	sample->percentile[PC_98] = histo_percentile(histo, 0.98f);
 	sample->percentile[PC_99] = histo_percentile(histo, 0.99f);
 	sample->percentile[PC_999] = histo_percentile(histo, 0.999f);
+}
 
-	/* empty the histogram */
-	histo->size = 0;
-	histo->count = 0;
+void brubeck_histo_empty(struct brubeck_histo *histo)
+{
+  if (histo == NULL) return;
+
+  /* empty the histogram */
+  histo->size = 0;
+  histo->count = 0;
 }

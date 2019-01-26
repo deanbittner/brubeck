@@ -6,10 +6,8 @@ REACTORHOME=../reactor
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
 TARGET = brubeck
-LIBS = -lm -pthread /opt/local/lib/libcrypto.a /opt/local/lib/libjansson.a -L$(REACTORHOME)/src/net -lnet
-#LIBS = -lm -pthread -lrt /usr/lib/x86_64-linux-gnu/libjansson.a
+LIBS = -lm -pthread -lrt /usr/lib/x86_64-linux-gnu/libjansson.a -L$(REACTORHOME)/src/net -lnet
 CC = gcc
-CC = clang
 CXX = g++
 CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\" -I$(REACTORHOME)/src
 

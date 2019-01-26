@@ -13,33 +13,50 @@ void brubeck_backend_register_metric(struct brubeck_backend *self, struct brubec
 	}
 }
 
+static void
+expire_metric(struct brubeck_metric *mt, void *_)
+{
+  /* If this metric is not disabled, turn "inactive"
+   * into "disabled" and "active" into "inactive"
+   */
+  if (mt->expire > BRUBECK_EXPIRE_ACTIVE) return;
+  if (mt->expire > BRUBECK_EXPIRE_DISABLED)
+    mt->expire = mt->expire - 1;
+}
+
 static void *backend__thread(void *_ptr)
 {
 	struct brubeck_backend *self = (struct brubeck_backend *)_ptr;
+	struct timespec now, then;
 
+	clock_gettime(CLOCK_MONOTONIC, &then);
 	for (;;) {
-		struct timespec now, then;
 
 		//clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &then, NULL);
-		clock_nanosleep_abstime(&then, NULL);
+		//		clock_nanosleep_abstime(&then, NULL);
 		//		clock_gettime(CLOCK_MONOTONIC, &then);
-		then.tv_sec += self->sample_freq;
 
 		if (!self->connect(self)) {
 			struct brubeck_metric *mt;
 
-			clock_gettime(CLOCK_REALTIME, &now);
-			self->tick_time = now.tv_sec;
+			//			clock_gettime(CLOCK_REALTIME, &now);
+			//			self->tick_time = now.tv_sec;
 
-			for (mt = self->queue; mt; mt = mt->next) {
-				if (mt->expire > BRUBECK_EXPIRE_DISABLED)
-					brubeck_metric_sample(mt, self->sample, self);
+			for (mt = self->queue; mt; mt = mt->next)
+			  {
+			    if (self->expire)
+			      expire_metric(mt, NULL);
+
+			    if (mt->expire > BRUBECK_EXPIRE_DISABLED)
+			      brubeck_metric_sample(mt, self->sample, self);
 			}
 
 			if (self->flush)
 				self->flush(self);
 		}
 
+		now = then;
+		then.tv_sec += self->sample_freq;
 		clock_nanosleep_abstime(&then, NULL);
 		//		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &then, NULL);
 	}

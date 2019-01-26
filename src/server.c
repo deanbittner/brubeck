@@ -5,6 +5,7 @@
 
 int gh_log_all_metrics = 0;
 char *gh_log_all_regex = NULL;
+int gh_active_backends = 0;
 
 #if JANSSON_VERSION_HEX < 0x020500
 #	error "libjansson-dev is too old (2.5+ required)"
@@ -66,17 +67,6 @@ update_proctitle(struct brubeck_server *server)
 }
 
 static void
-expire_metric(struct brubeck_metric *mt, void *_)
-{
-  /* If this metric is not disabled, turn "inactive"
-   * into "disabled" and "active" into "inactive"
-   */
-  if (mt->expire > BRUBECK_EXPIRE_ACTIVE) return;
-  if (mt->expire > BRUBECK_EXPIRE_DISABLED)
-    mt->expire = mt->expire - 1;
-}
-
-static void
 dump_metric(struct brubeck_metric *mt, void *out_file)
 {
   static const char *METRIC_NAMES[] = {"g", "c", "C", "h", "ms", "internal"};
@@ -90,16 +80,16 @@ dump_all_metrics(int ig)
 
   log_splunk("event=dump_metrics");
 
-	if (g_server->dump_path)
-		dump = fopen(g_server->dump_path, "w+");
+  if (g_server->dump_path)
+    dump = fopen(g_server->dump_path, "w+");
 
   if (!dump) {
     log_splunk_errno("event=dump_failed");
     return;
   }
 
-	brubeck_hashtable_foreach(g_server->metrics, &dump_metric, dump);
-	fclose(dump);
+  brubeck_hashtable_foreach(g_server->metrics, &dump_metric, dump);
+  fclose(dump);
 
   return;
 }
@@ -109,17 +99,26 @@ static void load_backends(struct brubeck_server *server, json_t *backends)
   size_t idx;
   json_t *b;
 
+  int carbon_count = 0;
+  int datadog_count = 0;
+
   json_array_foreach(backends, idx, b) {
     const char *type = json_string_value(json_object_get(b, "type"));
     struct brubeck_backend *backend = NULL;
 
-    if (type && !strcmp(type, "carbon")) {
-      backend = brubeck_carbon_new(server, b, server->active_backends);
+    if (type && !strcmp(type, "carbon"))
+      {
+	backend = brubeck_carbon_new(server, b, carbon_count++);
+	server->backends[server->active_backends++] = backend; 
+      }
+    else if (type && !strcmp(type, "datadog")) {
+      backend = brubeck_datadog_new(server, b, datadog_count++);
       server->backends[server->active_backends++] = backend; 
     } else {
       log_splunk("backend=%s event=invalid_backend", type);
     }
   }
+  gh_active_backends = server->active_backends;
 }
 
 static void load_samplers(struct brubeck_server *server, json_t *samplers)
@@ -160,10 +159,6 @@ static void load_config(struct brubeck_server *server, const char *path)
   int capacity;
   json_t *backends, *samplers;
 
-  /* optional */
-  int expire = 0;
-  char *http = NULL;
-
   server->name = "brubeck";
   server->config_name = get_config_name(path);
   server->dump_path = NULL;
@@ -174,14 +169,12 @@ static void load_config(struct brubeck_server *server, const char *path)
   }
 
   json_unpack_or_die(server->config,
-		     "{s?:s, s:s, s:i, s:o, s:o, s?:s, s?:i, s?:i, s?:s}",
+		     "{s?:s, s:s, s:i, s:o, s:o, s?:i, s?:s}",
 		     "server_name", &server->name,
 		     "dumpfile", &server->dump_path,
 		     "capacity", &capacity,
 		     "backends", &backends,
 		     "samplers", &samplers,
-		     "http", &http,
-		     "expire", &expire,
                      "log_all_metrics", &gh_log_all_metrics,
                      "log_all_regex", &gh_log_all_regex);
 
@@ -193,9 +186,6 @@ static void load_config(struct brubeck_server *server, const char *path)
 
   load_backends(server, backends);
   load_samplers(server, samplers);
-
-  //	if (http) brubeck_http_endpoint_init(server, http);
-  //  if (expire) server->fd_expire = load_timerfd(expire);
 }
 
 void brubeck_server_init(struct brubeck_server *server, const char *config)
@@ -239,13 +229,13 @@ int brubeck_server_run(struct brubeck_server *server)
 
   res = timing_mach_init ();
   if (res != 0)
-  {
-    log_splunk("event=can't init timer");
-    return 1;
-  }
+    {
+      log_splunk("event=can't init timer");
+      return 1;
+    }
 
-	server->running = 1;
-	log_splunk("event=listening");
+  server->running = 1;
+  log_splunk("event=listening");
 
   signal (SIGHUP, log_reopen);
   signal (SIGUSR2, dump_all_metrics);
@@ -254,34 +244,27 @@ int brubeck_server_run(struct brubeck_server *server)
   signal (SIGTERM, server_down);
 
 
-	while (server->running)
-  {
-    usleep (1000000);
-    count++;
-
-    /* every 1 second */
-    update_flows(server);
-    update_proctitle(server);
-
-    if (server->expire && count > server->expire)
+  while (server->running)
     {
-      log_splunk("event=expire");
-			brubeck_hashtable_foreach(server->metrics, &expire_metric, NULL);
-      count = 0;
-		}
-	}
+      usleep (1000000);
+      count++;
 
-	for (i = 0; i < server->active_backends; ++i)
-		pthread_cancel(server->backends[i]->thread);
+      /* every 1 second */
+      update_flows(server);
+      update_proctitle(server);
+    }
 
-	for (i = 0; i < server->active_samplers; ++i)
-  {
-		struct brubeck_sampler *sampler = server->samplers[i];
-		if (sampler->shutdown)
-			sampler->shutdown(sampler);
-	}
+  for (i = 0; i < server->active_backends; ++i)
+    pthread_cancel(server->backends[i]->thread);
 
-	log_splunk("event=shutdown");
-	return 0;
+  for (i = 0; i < server->active_samplers; ++i)
+    {
+      struct brubeck_sampler *sampler = server->samplers[i];
+      if (sampler->shutdown)
+	sampler->shutdown(sampler);
+    }
+
+  log_splunk("event=shutdown");
+  return 0;
 }
 

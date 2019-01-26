@@ -23,18 +23,17 @@ datadog_connect(void *backend)
 
   /* filter the key */
   if (datadog->regex_good != 1)
+    return -1;
+
+  if (datadog->out != NULL)
     return 0;
 
-  if (datadog_is_connected(datadog))
-    return 0;
-
-  datadog->out = udp_s_alloc(datadog->host, datadog->port, UDP_CAST_UNI);
+  datadog->out = udp_s_alloc(datadog->address, datadog->port, UDP_CAST_UNI);
   if (datadog->out == NULL)
     {
       log_splunk_errno("backend=datadog event=failed_to_connect");
       return -1;
     }
-
   log_splunk("backend=datadog event=connected");
 
   return 0;
@@ -96,7 +95,7 @@ datadog_plaintext_each(const char *key, value_t value, void *backend)
   if (regexec(&(datadog->regex_c), key, 0, NULL, 0) != 0)
     { return; }
 
-  sprintf (wbuf,"%s:%.6f|g",key,value);
+  sprintf (wbuf,"%s:%.6f|g\n",key,value);
   len = strlen(wbuf);
 
   /* need a socket here */
@@ -133,29 +132,36 @@ struct brubeck_backend *
 brubeck_datadog_new(struct brubeck_server *server, json_t *settings, int shard_n)
 {
   struct brubeck_datadog *datadog = xcalloc(1, sizeof(struct brubeck_datadog));
-  int frequency = 10;
-  
+  static char *a_l = "127.0.0.1";
+
   datadog->port = 8125;
-  strcpy (datadog->host, "127.0.0.1");
+  datadog->frequency = 10;
+  datadog->address = a_l;
 
   json_unpack_or_die(settings,
-		     "{s?:s, s?:i, s?:i, s?:s}",
-		     "host", &(datadog->host),
+		     "{s?:s, s?:i, s?:i, s?:s, s?:i}",
+		     "address", &(datadog->address),
 		     "port", &(datadog->port),
-		     "frequency", &frequency,
-		     "filter", &(datadog->regex_s)
+		     "frequency", &(datadog->frequency),
+		     "filter", &(datadog->regex_s),
+		     "expire", &(datadog->backend.expire)
 		     );
+
+  //  log_splunk ("%s:%d@%d->%s\n", datadog->address, datadog->port, datadog->frequency, datadog->regex_s);
 
   /* convert the filters to compiled regex */
   if (datadog->regex_s[0] == '\0')
-    { goto CLEANUP; }
+    {
+      log_splunk("backend=datadog no regex");
+      _free_datadog (datadog);
+      return NULL;
+    }
 
   if ((regcomp(&(datadog->regex_c), datadog->regex_s, REG_EXTENDED) != 0))
     {
       log_splunk("backend=datadog badregex=%s",
 		 datadog->regex_s);
       _free_datadog (datadog);
-
       return NULL;
     }
   datadog->regex_good = 1;
@@ -168,13 +174,12 @@ brubeck_datadog_new(struct brubeck_server *server, json_t *settings, int shard_n
   datadog->backend.sample = &datadog_plaintext_each;
   datadog->backend.flush = NULL;
 
-  datadog->backend.sample_freq = frequency;
+  datadog->backend.sample_freq = datadog->frequency;
   datadog->backend.server = server;
 
   /* it will connect things and disconnect things */
   brubeck_backend_run_threaded((struct brubeck_backend *)datadog);
   log_splunk("backend=datadog event=started");
 
- CLEANUP:
   return (struct brubeck_backend *)datadog;
 }

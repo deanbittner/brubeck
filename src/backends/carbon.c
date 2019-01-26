@@ -215,11 +215,12 @@ brubeck_carbon_new(struct brubeck_server *server, json_t *settings, int shard_n)
 	int port, frequency, pickle = 0;
 
 	json_unpack_or_die(settings,
-		"{s:s, s:i, s?:b, s:i}",
+		"{s:s, s:i, s?:b, s:i, s?:i}",
 		"address", &address,
 		"port", &port,
 		"pickle", &pickle,
-		"frequency", &frequency);
+	        "frequency", &frequency,
+	        "expire", &(carbon->backend.expire));
 
 	carbon->backend.type = BRUBECK_BACKEND_CARBON;
 	carbon->backend.shard_n = shard_n;

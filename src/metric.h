@@ -30,29 +30,29 @@ enum {
 };
 
 struct brubeck_metric {
-	struct brubeck_metric *next;
+  struct brubeck_metric *next;
 
 #ifdef BRUBECK_METRICS_FLOW
-	uint64_t flow;
+  uint64_t flow;
 #endif
 
-	pthread_spinlock_t lock;
-	uint16_t key_len;
-	uint8_t type;
-	uint8_t expire;
+  pthread_spinlock_t lock;
+  uint16_t key_len;
+  uint8_t type;
+  uint8_t expire;
 
-	union {
-		struct {
-			value_t value;
-		} gauge, meter;
-		struct {
-			value_t value, previous;
-		} counter;
-		struct brubeck_histo histogram;
-		void *other;
-	} as;
+  union {
+    struct {
+      value_t value;
+    } gauge, meter;
+    struct {
+      value_t value, previous;
+    } counter;
+    struct brubeck_histo histogram;
+    void *other;
+  } as;
 
-	char key[];
+  char key[];
 };
 
 typedef void (*brubeck_sample_cb)(

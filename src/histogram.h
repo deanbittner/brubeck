@@ -25,4 +25,6 @@ void brubeck_histo_sample(
 		struct brubeck_histo_sample *sample,
 		struct brubeck_histo *histo);
 
+void brubeck_histo_empty(struct brubeck_histo *histo);
+
 #endif

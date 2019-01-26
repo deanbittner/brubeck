@@ -11,6 +11,7 @@ struct brubeck_backend {
 	struct brubeck_server *server;
 	int sample_freq;
 	int shard_n;
+  int expire;
 
 	int (*connect)(void *);
 	bool (*is_connected)(void *);

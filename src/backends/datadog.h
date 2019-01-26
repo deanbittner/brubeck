@@ -9,9 +9,10 @@ struct brubeck_datadog {
   struct brubeck_backend backend;
 
   UdpSender_t *out;
-  char host[512];
+  char *address;
   int port;
-  char regex_s[8192];
+  int frequency;
+  char *regex_s;
   regex_t regex_c;
   int regex_good;
   
