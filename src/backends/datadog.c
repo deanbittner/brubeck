@@ -129,7 +129,7 @@ _free_datadog (struct brubeck_datadog *datadog)
 }
 
 struct brubeck_backend *
-brubeck_datadog_new(struct brubeck_server *server, json_t *settings, int shard_n)
+brubeck_datadog_new(struct brubeck_server *server, json_t *settings)
 {
   struct brubeck_datadog *datadog = xcalloc(1, sizeof(struct brubeck_datadog));
   static char *a_l = "127.0.0.1";
@@ -167,7 +167,6 @@ brubeck_datadog_new(struct brubeck_server *server, json_t *settings, int shard_n
   datadog->regex_good = 1;
 
   datadog->backend.type = BRUBECK_BACKEND_DATADOG;
-  datadog->backend.shard_n = shard_n;
   datadog->backend.connect = &datadog_connect;
   datadog->backend.is_connected = &datadog_is_connected;
 

@@ -300,15 +300,6 @@ void brubeck_metric_record(struct brubeck_metric *metric, value_t value, value_t
   _prototypes[metric->type].record(metric, value, sample_freq, modifiers);
 }
 
-struct brubeck_backend *
-brubeck_metric_shard(struct brubeck_server *server, struct brubeck_metric *metric)
-{
-  int shard = 0;
-  if (server->active_backends > 1)
-    shard = CityHash32(metric->key, metric->key_len) % server->active_backends;
-  return server->backends[shard];
-}
-
 struct brubeck_metric *
 brubeck_metric_new(struct brubeck_server *server, const char *key, size_t key_len, uint8_t type)
 {

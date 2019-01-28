@@ -20,6 +20,6 @@ struct brubeck_carbon {
 };
 
 struct brubeck_backend *brubeck_carbon_new(
-	struct brubeck_server *server, json_t *settings, int shard_n);
+	struct brubeck_server *server, json_t *settings);
 
 #endif

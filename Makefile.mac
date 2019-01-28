@@ -11,7 +11,7 @@ LIBS = -lm -pthread /opt/local/lib/libcrypto.a /opt/local/lib/libjansson.a -L$(R
 CC = gcc
 CC = clang
 CXX = g++
-CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\" -I$(REACTORHOME)/src
+CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\" -I$(REACTORHOME)/src -DMACBUILD
 
 .PHONY: default all clean
 

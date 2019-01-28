@@ -77,6 +77,8 @@ void brubeck_internal__init(struct brubeck_server *server)
 	internal->as.other = &server->internal_stats;
 	internal->expire = BRUBECK_EXPIRE_NEVER;
 
-	backend = brubeck_metric_shard(server, internal);
+/* disabled sharding */
+/* just use the first backend for the internal metric sample frequency */
+	backend = server->backends[0];
 	server->internal_stats.sample_freq = backend->sample_freq;
 }
