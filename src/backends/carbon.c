@@ -68,7 +68,9 @@ static void plaintext_each(
 	ptr += brubeck_ftoa(ptr, value);
 	*ptr++ = ' ';
 
+/* this is set to zero.  carbon doc says -1 is time now at server */
 	ptr += brubeck_itoa(ptr, carbon->backend.tick_time);
+//	ptr += brubeck_itoa(ptr, -1);
 	*ptr++ = '\n';
 
 	wr = write_in_full(carbon->out_sock, buffer, ptr - buffer);

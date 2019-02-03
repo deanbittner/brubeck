@@ -5,3 +5,4 @@ brubeck
 .DS_Store
 build/*
 ubuntu
+up.out

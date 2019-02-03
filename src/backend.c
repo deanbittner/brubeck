@@ -39,8 +39,8 @@ static void *backend__thread(void *_ptr)
 		if (!self->connect(self)) {
 			struct brubeck_metric *mt;
 
-/* this would be the opportunity to set tick_time.  i believe if set
-to zerok, it marks the time at the server */
+/* dab, set the tick time here */
+	self->tick_time = time(NULL);
 			for (mt = self->queue; mt; mt = mt->next)
 			  {
 			    if (self->expire)
