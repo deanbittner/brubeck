@@ -1,14 +1,15 @@
+
 PLATFORM=$(shell uname -s)
 ifeq ($(PLATFORM),Darwin)
        include Makefile.mac
 else
-	. /etc/os-release
-	case $ID in
-	   alpine)
+	include /etc/os-release
+	ifeq ($(ID),alpine)
 		include Makefile.alpine
-		;;	
-	   *)
+	else
 		include Makefile.linux
-		;;
-	esac
+	endif
 endif
+
+include Makefile.common
+include Makefile.distro

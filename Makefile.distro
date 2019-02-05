@@ -1,0 +1,21 @@
+DISTROUSER=dean
+HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
+SYSTEM ?= $(HOST_SYSTEM)
+
+brubeck_runtime: brubeck
+	if [ ! -d brubeck_runtime ] ; then mkdir brubeck_runtime ; fi
+	cp install.sh brubeck_runtime/.
+	cp update.sh brubeck_runtime/.
+	cp brubeck burbeck_runtime/brubeck-dbg
+	cp brubeck brubeck_runtime/.
+	strip brubeck_runtime/brubeck
+
+brubeck_runtime.$(HOST_SYSTEM).tar.gz: brubeck_runtime
+	tar cvzf brubeck_runtime.$(HOST_SYSTEM).tar.gz brubeck_runtime
+
+distro: brubeck_runtime.$(HOST_SYSTEM).tar.gz
+	scp brubeck_runtime.$(HOST_SYSTEM).tar.gz $(DISTROUSER)@trouble:brubeck_runtime.$(HOST_SYSTEM).tar.gz
+	ssh -p 22000 -tt $(DISTROUSER)@trouble.bottorrent.net "sudo mv brubeck_runtime.$(HOST_SYSTEM).tar.gz /opt/graphite/webapp/content/RWI/runtime/. ; sudo chown www-data:www-data /opt/graphite/webapp/content/RWI/runtime/brubeck_runtime.$(HOST_SYSTEM).tar.gz"
+
+distro_local: brubeck_runtime.$(HOST_SYSTEM).tar.gz
+	cp brubeck_runtime.$(HOST_SYSTEM).tar.gz /tmp/.

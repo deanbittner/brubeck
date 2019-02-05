@@ -1,0 +1,39 @@
+OBJECTS = $(patsubst %.c, %.o, $(SOURCES))
+HEADERS = $(wildcard src/*.h) $(wildcard src/libcuckoo/*.h)
+
+TEST_SRC = $(wildcard tests/*.c)
+TEST_OBJ = $(patsubst %.c, %.o, $(TEST_SRC))
+
+TARGET = brubeck
+
+.PHONY: default all clean
+
+default: $(TARGET)
+all: default
+
+%.o: %.c $(HEADERS) vendor/ck/src/libck.a
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.PRECIOUS: $(TARGET) $(OBJECTS)
+
+$(TARGET): $(OBJECTS) brubeck.o
+	$(CC) $(CFLAGS) brubeck.o $(OBJECTS) $(LIBS) vendor/ck/src/libck.a -o $@.new
+	mv $@.new $@
+
+$(TARGET)_test: $(OBJECTS) $(TEST_OBJ)
+	$(CC) $(OBJECTS) $(TEST_OBJ) $(LIBS) vendor/ck/src/libck.a -o $@
+
+test: $(TARGET)_test
+	./$(TARGET)_test
+
+vendor/ck/Makefile:
+	cd vendor/ck && ./configure
+
+vendor/ck/src/libck.a: vendor/ck/Makefile
+	$(MAKE) -C vendor/ck
+
+clean:
+	-rm -f $(OBJECTS) brubeck.o
+	-rm -f $(TEST_OBJ)
+	-rm -f $(TARGET) $(TARGET)_test
+
