@@ -33,7 +33,10 @@ vendor/ck/src/libck.a: vendor/ck/Makefile
 	$(MAKE) -C vendor/ck
 
 clean:
-	-rm -f $(OBJECTS) brubeck.o
-	-rm -f $(TEST_OBJ)
-	-rm -f $(TARGET) $(TARGET)_test
+	rm -f $(OBJECTS) brubeck.o
+	rm -f $(TEST_OBJ)
+	rm -f $(TARGET) $(TARGET)_test
+	rm -rf brubeck_runtime
+
+	
 

@@ -12,5 +12,6 @@ else
 fi
 
 tar xvzf ${COMPONENT}_runtime.${HOST_SYSTEM}.tar.gz
+
 popd
 

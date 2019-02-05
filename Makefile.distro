@@ -2,11 +2,14 @@ DISTROUSER=dean
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
 
-brubeck_runtime: brubeck
+clean-runtime:
+	rm -rf brubeck_runtime
+
+brubeck_runtime: clean-runtime brubeck
 	if [ ! -d brubeck_runtime ] ; then mkdir brubeck_runtime ; fi
 	cp install.sh brubeck_runtime/.
 	cp update.sh brubeck_runtime/.
-	cp brubeck burbeck_runtime/brubeck-dbg
+	cp brubeck brubeck_runtime/brubeck-dbg
 	cp brubeck brubeck_runtime/.
 	strip brubeck_runtime/brubeck
 
