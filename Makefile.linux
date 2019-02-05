@@ -5,7 +5,7 @@ VERSION_ID := $(patsubst "%",%,$(VERSION_ID))
 REACTORHOME=../reactor
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
-LIBS = -lm -pthread -lrt /usr/lib/libjansson.a -L$(REACTORHOME)/src/net -lnet
+LIBS = -lm -pthread -lrt /usr/lib/x86_64-linux-gnu/libjansson.a -L$(REACTORHOME)/src/net -lnet
 CC = gcc
 CXX = g++
 CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\" -I$(REACTORHOME)/src
