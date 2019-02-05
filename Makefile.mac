@@ -1,7 +1,6 @@
 
-include /etc/os-release
-ID := $(patsubst "%",%,$(ID))
-VERSION_ID := $(patsubst "%",%,$(VERSION_ID))
+ID=darwin
+VERSION_ID="unspecified"
 REACTORHOME=../reactor
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
