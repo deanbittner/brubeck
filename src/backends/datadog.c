@@ -93,7 +93,9 @@ datadog_plaintext_each(const char *key, value_t value, void *backend)
   */
 
   if (regexec(&(datadog->regex_c), key, 0, NULL, 0) != 0)
-    { return; }
+    {
+      return;
+    }
 
   sprintf (wbuf,"%s:%.6f|g\n",key,value);
   len = strlen(wbuf);
