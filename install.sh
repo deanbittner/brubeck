@@ -15,7 +15,6 @@ else
 fi
 sleep 1
 [ -f /usr/local/sbin/brubeck ] && mv /usr/local/sbin/brubeck /usr/local/sbin/brubeck.old
-[ -f /etc/init.d/brubeck ] && mv /etc/init.d/brubeck /etc/init.d/brubeck.old
 #
 # install the binary
 echo "$STEP/$TOTAL Installing binary ..."
@@ -32,6 +31,7 @@ VALUE=n
 read -p "Install init file [(y/n)n]: " RVALUE
 [ ! -z "${RVALUE}" ] && VALUE="${RVALUE}"
 if [ $VALUE == y ] ; then
+    [ -f /etc/init.d/brubeck ] && mv /etc/init.d/brubeck /etc/init.d/brubeck.old
     if [ -d /etc/init.d ] ; then
 	cp brubeck_init.d /etc/init.d/brubeck
 	chown root.root /etc/init.d/brubeck
