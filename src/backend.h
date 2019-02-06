@@ -10,8 +10,7 @@ struct brubeck_backend {
 	enum brubeck_backend_t type;
 	struct brubeck_server *server;
 	int sample_freq;
-	int shard_n;
-  int expire;
+	int expire;
 
 	int (*connect)(void *);
 	bool (*is_connected)(void *);

@@ -21,6 +21,6 @@ struct brubeck_datadog {
 
 struct brubeck_backend *
 brubeck_datadog_new(struct brubeck_server *server,
-		    json_t *settings, int shard_n);
+		    json_t *settings);
 
 #endif

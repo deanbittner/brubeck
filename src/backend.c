@@ -30,7 +30,7 @@ expire_metric(struct brubeck_metric *mt, void *_)
 static void *backend__thread(void *_ptr)
 {
 	struct brubeck_backend *self = (struct brubeck_backend *)_ptr;
-	struct timespec now, then;
+	struct timespec then;
 
 	clock_gettime(CLOCK_MONOTONIC, &then);
 	for (;;) {
@@ -42,9 +42,8 @@ static void *backend__thread(void *_ptr)
 		if (!self->connect(self)) {
 			struct brubeck_metric *mt;
 
-			//			clock_gettime(CLOCK_REALTIME, &now);
-			//			self->tick_time = now.tv_sec;
-
+/* dab, set the tick time here */
+	self->tick_time = time(NULL);
 			for (mt = self->queue; mt; mt = mt->next)
 			  {
 			    if (mt->expire > BRUBECK_EXPIRE_INACTIVE)
@@ -57,10 +56,12 @@ static void *backend__thread(void *_ptr)
 				self->flush(self);
 		}
 
-		now = then;
 		then.tv_sec += self->sample_freq;
+#ifdef MACBUILD
 		clock_nanosleep_abstime(&then, NULL);
-		//		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &then, NULL);
+#else
+		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &then, NULL);
+#endif
 	}
 	return NULL;
 }

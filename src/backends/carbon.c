@@ -68,7 +68,9 @@ static void plaintext_each(
 	ptr += brubeck_ftoa(ptr, value);
 	*ptr++ = ' ';
 
+/* this is set to zero.  carbon doc says -1 is time now at server */
 	ptr += brubeck_itoa(ptr, carbon->backend.tick_time);
+//	ptr += brubeck_itoa(ptr, -1);
 	*ptr++ = '\n';
 
 	wr = write_in_full(carbon->out_sock, buffer, ptr - buffer);
@@ -208,7 +210,7 @@ static void pickle1_each(
 }
 
 struct brubeck_backend *
-brubeck_carbon_new(struct brubeck_server *server, json_t *settings, int shard_n)
+brubeck_carbon_new(struct brubeck_server *server, json_t *settings)
 {
 	struct brubeck_carbon *carbon = xcalloc(1, sizeof(struct brubeck_carbon));
 	char *address;
@@ -223,7 +225,6 @@ brubeck_carbon_new(struct brubeck_server *server, json_t *settings, int shard_n)
 	        "expire", &(carbon->backend.expire));
 
 	carbon->backend.type = BRUBECK_BACKEND_CARBON;
-	carbon->backend.shard_n = shard_n;
 	carbon->backend.connect = &carbon_connect;
 	carbon->backend.is_connected = &carbon_is_connected;
 

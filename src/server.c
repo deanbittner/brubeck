@@ -1,4 +1,8 @@
+#ifdef MACBUILD
 #include <sys/signal.h>
+#else
+#include <signal.h>
+#endif
 #include <poll.h>
 
 #include "brubeck.h"
@@ -99,20 +103,17 @@ static void load_backends(struct brubeck_server *server, json_t *backends)
   size_t idx;
   json_t *b;
 
-  int carbon_count = 0;
-  int datadog_count = 0;
-
   json_array_foreach(backends, idx, b) {
     const char *type = json_string_value(json_object_get(b, "type"));
     struct brubeck_backend *backend = NULL;
 
     if (type && !strcmp(type, "carbon"))
       {
-	backend = brubeck_carbon_new(server, b, carbon_count++);
+	backend = brubeck_carbon_new(server, b);
 	server->backends[server->active_backends++] = backend; 
       }
     else if (type && !strcmp(type, "datadog")) {
-      backend = brubeck_datadog_new(server, b, datadog_count++);
+      backend = brubeck_datadog_new(server, b);
       server->backends[server->active_backends++] = backend; 
     } else {
       log_splunk("backend=%s event=invalid_backend", type);
@@ -225,14 +226,16 @@ int brubeck_server_run(struct brubeck_server *server)
 {
   int i = 0;
   int count = 0;
-  int res = 0;
 
+#ifdef MACBUILD
+  int res = 0;
   res = timing_mach_init ();
   if (res != 0)
     {
       log_splunk("event=can't init timer");
       return 1;
     }
+#endif
 
   server->running = 1;
   log_splunk("event=listening");

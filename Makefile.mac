@@ -1,25 +1,14 @@
 
-include /etc/os-release
-ID := $(patsubst "%",%,$(ID))
-VERSION_ID := $(patsubst "%",%,$(VERSION_ID))
+ID=Darwin
+VERSION_ID="unspecified"
 REACTORHOME=../reactor
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
-TARGET = brubeck
 LIBS = -lm -pthread /opt/local/lib/libcrypto.a /opt/local/lib/libjansson.a -L$(REACTORHOME)/src/net -lnet
-#LIBS = -lm -pthread -lrt /usr/lib/x86_64-linux-gnu/libjansson.a
 CC = gcc
 CC = clang
 CXX = g++
-CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\" -I$(REACTORHOME)/src
-
-.PHONY: default all clean
-
-default: $(TARGET)
-all: default
-
-#	src/http.c \
-#	src/samplers/statsd-secure.c \
+CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/ck/include -DNDEBUG=1 -DGIT_SHA=\"$(GIT_SHA)\" -I$(REACTORHOME)/src -DMACBUILD -flto
 
 SOURCES = \
 	src/timing_mach.c \
@@ -39,56 +28,3 @@ SOURCES = \
 	src/setproctitle.c \
 	src/slab.c \
 	src/utils.c
-
-#	src/http.c \
-
-#ifndef BRUBECK_NO_HTTP
-#	LIBS += -lmicrohttpd
-#	CFLAGS += -DBRUBECK_HAVE_MICROHTTPD
-#endif
-
-OBJECTS = $(patsubst %.c, %.o, $(SOURCES))
-HEADERS = $(wildcard src/*.h) $(wildcard src/libcuckoo/*.h)
-
-TEST_SRC = $(wildcard tests/*.c)
-TEST_OBJ = $(patsubst %.c, %.o, $(TEST_SRC))
-
-%.o: %.c $(HEADERS) vendor/ck/src/libck.a
-	$(CC) $(CFLAGS) -c $< -o $@
-
-.PRECIOUS: $(TARGET) $(OBJECTS)
-
-$(TARGET): $(OBJECTS) brubeck.o
-	$(CC) -flto brubeck.o $(OBJECTS) $(LIBS) vendor/ck/src/libck.a -o $@.new
-	mv $@.new $@
-
-$(TARGET)_test: $(OBJECTS) $(TEST_OBJ)
-	$(CC) $(OBJECTS) $(TEST_OBJ) $(LIBS) vendor/ck/src/libck.a -o $@
-
-test: $(TARGET)_test
-	./$(TARGET)_test
-
-vendor/ck/Makefile:
-	cd vendor/ck && ./configure
-
-vendor/ck/src/libck.a: vendor/ck/Makefile
-	$(MAKE) -C vendor/ck
-
-clean:
-	-rm -f $(OBJECTS) brubeck.o
-	-rm -f $(TEST_OBJ)
-	-rm -f $(TARGET) $(TARGET)_test
-
-archive:
-	mkdir -p "${ID}/${VERSION_ID}";\
-	cd "${ID}/${VERSION_ID}"; \
-	tar -czvf brubeck_distro.tar.gz ../../brubeck
-
-distro_local: archive
-	cd "${ID}/${VERSION_ID}"; \
-	cp brubeck_distro.tar.gz /tmp/.;
-
-distro: archive
-	cd "${ID}/${VERSION_ID}"; \
-		scp -P 22000 brubeck_distro.tar.gz trouble.bottorrent.net:brubeck_distro.tar.gz; \
-		ssh -p 22000 -tt trouble.bottorrent.net "sudo mkdir -p /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}; sudo mv brubeck_distro.tar.gz /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}; sudo chown www-data:www-data /opt/graphite/webapp/content/invidi/brubeck-runtime/${ID}/${VERSION_ID}/brubeck_distro.tar.gz"

@@ -5,3 +5,6 @@ brubeck
 .DS_Store
 build/*
 ubuntu
+up.out
+brubeck_runtime.*.tar.gz
+brubeck_runtime
