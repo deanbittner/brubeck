@@ -22,8 +22,17 @@ expire_metric(struct brubeck_metric *mt, void *_)
   if (mt->expire > BRUBECK_EXPIRE_ACTIVE) return;
   if (mt->expire == BRUBECK_EXPIRE_ACTIVE)
     {
-      mt->expire = BRUBECK_EXPIRE_INACTIVE;
-      mt->as.counter.value = mt->as.meter.value = mt->as.gauge.value = 0;
+	mt->expire = BRUBECK_EXPIRE_INACTIVE;
+	/* only if it's not a histo type */
+	switch (mt->type)
+	{	
+	case BRUBECK_MT_HISTO:
+	case BRUBECK_MT_TIMER:
+		break;
+	default:
+		mt->as.counter.value = mt->as.meter.value = mt->as.gauge.value = 0;
+		break;
+	}
     }
 }
 
@@ -50,7 +59,7 @@ static void *backend__thread(void *_ptr)
 			      brubeck_metric_sample(mt, self->sample, self);
 			    if (self->expire)
 				expire_metric(mt, NULL);
-			}
+			  }
 
 			if (self->flush)
 				self->flush(self);
