@@ -20,8 +20,11 @@ expire_metric(struct brubeck_metric *mt, void *_)
    * into "disabled" and "active" into "inactive"
    */
   if (mt->expire > BRUBECK_EXPIRE_ACTIVE) return;
-  if (mt->expire > BRUBECK_EXPIRE_DISABLED)
-    mt->expire = mt->expire - 1;
+  if (mt->expire == BRUBECK_EXPIRE_ACTIVE)
+    {
+      mt->expire = BRUBECK_EXPIRE_INACTIVE;
+      mt->as.counter.value = mt->as.meter.value = mt->as.gauge.value = 0;
+    }
 }
 
 static void *backend__thread(void *_ptr)
@@ -44,11 +47,10 @@ static void *backend__thread(void *_ptr)
 
 			for (mt = self->queue; mt; mt = mt->next)
 			  {
-			    if (self->expire)
-			      expire_metric(mt, NULL);
-
-			    if (mt->expire > BRUBECK_EXPIRE_DISABLED)
+			    if (mt->expire > BRUBECK_EXPIRE_INACTIVE)
 			      brubeck_metric_sample(mt, self->sample, self);
+			    if (self->expire)
+				expire_metric(mt, NULL);
 			}
 
 			if (self->flush)

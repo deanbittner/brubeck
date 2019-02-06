@@ -68,10 +68,8 @@ gauge__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
   }
   pthread_spin_unlock(&metric->lock);
 
-  if (metric->expire > BRUBECK_EXPIRE_DISABLED)
+  if (metric->expire > BRUBECK_EXPIRE_INACTIVE)
     sample(metric->key, value, opaque);
-  else
-    metric->as.gauge.value = 0;
 }
 
 
@@ -105,10 +103,8 @@ meter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
   }
   pthread_spin_unlock(&metric->lock);
 
-  if (metric->expire > BRUBECK_EXPIRE_DISABLED)
+  if (metric->expire > BRUBECK_EXPIRE_INACTIVE)
     sample(metric->key, value, opaque);
-  else
-    metric->as.meter.value = 0;
 }
 
 
@@ -150,10 +146,8 @@ counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *o
   }
   pthread_spin_unlock(&metric->lock);
 
-  if (metric->expire > BRUBECK_EXPIRE_DISABLED)
+  if (metric->expire > BRUBECK_EXPIRE_INACTIVE)
     sample(metric->key, value, opaque);
-  else
-    metric->as.counter.value = 0;
 }
 
 
@@ -185,7 +179,7 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
   }
   pthread_spin_unlock(&metric->lock);
 
-  if (metric->expire <= BRUBECK_EXPIRE_DISABLED)
+  if (metric->expire == BRUBECK_EXPIRE_INACTIVE)
     {
       brubeck_histo_empty(&metric->as.histogram);
       return;

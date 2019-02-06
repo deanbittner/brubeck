@@ -63,7 +63,7 @@ expire_metric(struct brubeck_server *server, const char *url)
 			server, url + strlen("/expire/"));
 
 	if (metric) {
-		metric->expire = BRUBECK_EXPIRE_DISABLED;
+		metric->expire = BRUBECK_EXPIRE_INACTIVE;
 		return MHD_create_response_from_data(
 				0, "", 0, 0);
 	}
