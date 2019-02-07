@@ -97,7 +97,10 @@ datadog_plaintext_each(const char *key, value_t value, void *backend)
       return;
     }
 
-  sprintf (wbuf,"%s:%.6f|g\n",key,value);
+  if (datadog->tagstr != NULL)
+    sprintf (wbuf,"%s:%.6f|g|#%s\n",key,value,datadog->tagstr);
+  else
+    sprintf (wbuf,"%s:%.6f|g\n",key,value);
   len = strlen(wbuf);
 
   /* need a socket here */
@@ -127,6 +130,9 @@ _free_datadog (struct brubeck_datadog *datadog)
     udp_s_free (datadog->out);
   datadog->out = NULL;
 
+  if (datadog->tagstr)
+    free (datadog->tagstr);
+
   free (datadog);
 }
 
@@ -146,7 +152,8 @@ brubeck_datadog_new(struct brubeck_server *server, json_t *settings)
 		     "port", &(datadog->port),
 		     "frequency", &(datadog->frequency),
 		     "filter", &(datadog->regex_s),
-		     "expire", &(datadog->backend.expire)
+		     "expire", &(datadog->backend.expire),
+		     "tags", &(datadog->tagstr)
 		     );
 
   //  log_splunk ("%s:%d@%d->%s\n", datadog->address, datadog->port, datadog->frequency, datadog->regex_s);
