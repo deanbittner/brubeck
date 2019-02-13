@@ -54,7 +54,7 @@ datadog_plaintext_each(const char *key, value_t value, void *backend)
 {
   struct brubeck_datadog *datadog =
     (struct brubeck_datadog *)backend;
-  char wbuf[1024];
+  char wbuf[2048];
   unsigned len = 0;
   char *rstr = NULL;
 
@@ -100,8 +100,50 @@ datadog_plaintext_each(const char *key, value_t value, void *backend)
   if (datadog->tagstr != NULL)
     sprintf (wbuf,"%s:%.6f|g|#%s\n",key,value,datadog->tagstr);
   else
-    sprintf (wbuf,"%s:%.6f|g\n",key,value);
+      sprintf (wbuf,"%s:%.6f|g\n",key,value);
   len = strlen(wbuf);
+
+  if (datadog->tagify)
+    {
+      /* tokenize and append */
+      char kbuf[2048];
+      char *token = NULL;
+      int i = 0;
+      char tbuf[2048];
+      char *tp = tbuf;
+      char *delim = NULL;
+      char *comma = ",";
+      char *hash = "#";
+
+      tbuf[0] = '\0';
+      
+      /* tokenize a copy, destructive */
+      strcpy (kbuf, key);
+      /* first */
+      token = strtok(kbuf, "."); 
+      if (wbuf[len-2] == 'g')
+	delim = hash;
+      else
+	delim = comma;
+
+      sprintf (tbuf, "%s%s_%d:%s\n", delim, "m", i++, kbuf);
+      tp = &(wbuf[len-1]);
+      strcpy (tp, tbuf);
+      len = strlen(wbuf);
+
+      delim = comma;
+      /* 2+ */
+      while (token != NULL)
+	{ 
+	  token = strtok(NULL, ".");
+	  if (token == NULL) break;
+
+	  sprintf (tbuf, "%s%s_%d:%s\n", delim, "m", i++, token);
+	  tp = &(wbuf[len-1]);
+	  strcpy (tp, tbuf);
+	  len = strlen(wbuf);
+	}
+    }
 
   /* need a socket here */
   rstr = udp_s_send (datadog->out, wbuf, len);
@@ -147,13 +189,14 @@ brubeck_datadog_new(struct brubeck_server *server, json_t *settings)
   datadog->address = a_l;
 
   json_unpack_or_die(settings,
-		     "{s?:s, s?:i, s?:i, s?:s, s?:i}",
+		     "{s?:s, s?:i, s?:i, s?:s, s?:i, s?:s, s?:i}",
 		     "address", &(datadog->address),
 		     "port", &(datadog->port),
 		     "frequency", &(datadog->frequency),
 		     "filter", &(datadog->regex_s),
 		     "expire", &(datadog->backend.expire),
-		     "tags", &(datadog->tagstr)
+		     "tags", &(datadog->tagstr),
+		     "tagify", &(datadog->tagify)
 		     );
 
   //  log_splunk ("%s:%d@%d->%s\n", datadog->address, datadog->port, datadog->frequency, datadog->regex_s);

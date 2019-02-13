@@ -16,6 +16,7 @@ struct brubeck_datadog {
   regex_t regex_c;
   int regex_good;
   char *tagstr;
+  int tagify;
 
   size_t sent;
 };
