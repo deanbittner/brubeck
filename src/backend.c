@@ -28,6 +28,7 @@ expire_metric(struct brubeck_metric *mt, void *_)
 	{	
 	case BRUBECK_MT_HISTO:
 	case BRUBECK_MT_TIMER:
+	  brubeck_histo_empty(&mt->as.histogram);
 		break;
 	default:
 		mt->as.counter.value = mt->as.meter.value = mt->as.gauge.value = 0;

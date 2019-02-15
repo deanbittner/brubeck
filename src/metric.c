@@ -173,17 +173,22 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
   struct brubeck_histo_sample hsample;
   char *key;
 
+  if (metric->expire <= BRUBECK_EXPIRE_INACTIVE)
+    return;
+
   pthread_spin_lock(&metric->lock);
   {
     brubeck_histo_sample(&hsample, &metric->as.histogram);
   }
   pthread_spin_unlock(&metric->lock);
 
+  /* used to empty here ...
   if (metric->expire == BRUBECK_EXPIRE_INACTIVE)
     {
       brubeck_histo_empty(&metric->as.histogram);
       return;
     }
+  */
 
   /* alloc space for this on the stack. we need enough for:
    * key_length + longest_suffix + null terminator
