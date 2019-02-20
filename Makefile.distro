@@ -1,6 +1,8 @@
 DISTROUSER=dean
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
+ARCHIVEDIR=brubeck_runtime
+DISTROARCHIVE=$(ARCHIVEDIR).$(HOST_SYSTEM).tar.gz
 
 clean-runtime:
 	rm -rf brubeck_runtime
@@ -13,12 +15,18 @@ brubeck_runtime: clean-runtime brubeck
 	cp brubeck brubeck_runtime/.
 	strip brubeck_runtime/brubeck
 
-brubeck_runtime.$(HOST_SYSTEM).tar.gz: brubeck_runtime
-	tar cvzf brubeck_runtime.$(HOST_SYSTEM).tar.gz brubeck_runtime
+# distro targets require an .ssh/config entry as below (but uncommented)
+# Host trouble
+# Hostname trouble.bottorrent.net
+# Port 22000
+# User dean
 
-distro: brubeck_runtime.$(HOST_SYSTEM).tar.gz
-	scp brubeck_runtime.$(HOST_SYSTEM).tar.gz $(DISTROUSER)@trouble:brubeck_runtime.$(HOST_SYSTEM).tar.gz
-	ssh -p 22000 -tt $(DISTROUSER)@trouble.bottorrent.net "sudo mv brubeck_runtime.$(HOST_SYSTEM).tar.gz /opt/graphite/webapp/content/RWI/runtime/. ; sudo chown www-data:www-data /opt/graphite/webapp/content/RWI/runtime/brubeck_runtime.$(HOST_SYSTEM).tar.gz"
+$(DISTROARCHIVE): brubeck_runtime
+	tar cvzf $(DISTROARCHIVE) brubeck_runtime
 
-distro_local: brubeck_runtime.$(HOST_SYSTEM).tar.gz
-	cp brubeck_runtime.$(HOST_SYSTEM).tar.gz /tmp/.
+distro: $(DISTROARCHIVE)
+	scp $(DISTROARCHIVE) trouble:$(DISTROARCHIVE)
+	ssh -tt trouble "sudo mv $(DISTROARCHIVE) /opt/graphite/webapp/content/RWI/runtime/. ; sudo chown www-data:www-data /opt/graphite/webapp/content/RWI/runtime/$(DISTROARCHIVE)"
+
+distro_local: $(DISTROARCHIVE)
+	cp $(DISTROARCHIVE) /tmp/.
