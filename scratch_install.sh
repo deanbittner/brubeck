@@ -1,16 +1,16 @@
 #!/bin/bash
 
 HOST_SYSTEM=`uname -s`
-COMPONENT=brubeck
+COMPONENT=brubeck_runtime
 
-rm -f ${COMPONENT}_runtime.${HOST_SYSTEM}.tar.gz
-wget http://trouble.bottorrent.net/static/RWI/runtime/${COMPONENT}_runtime.${HOST_SYSTEM}.tar.gz
-tar xvzf ${COMPONENT}_runtime.${HOST_SYSTEM}.tar.gz
-pushd brubeck_runtime
+rm -f ${COMPONENT}.${HOST_SYSTEM}.tar.gz
+wget http://trouble.bottorrent.net/static/RWI/runtime/${COMPONENT}.${HOST_SYSTEM}.tar.gz
+tar xvzf ${COMPONENT}.${HOST_SYSTEM}.tar.gz
+pushd ${COMPONENT}
 ./install.sh
 popd
-rm -rf brubeck_runtime
-rm -f ${COMPONENT}_runtime.${HOST_SYSTEM}.tar.gz
+rm -rf ${COMPONENT}
+rm -f ${COMPONENT}.${HOST_SYSTEM}.tar.gz
 
 
 
