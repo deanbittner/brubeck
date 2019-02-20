@@ -1,8 +1,8 @@
 DISTROUSER=dean
 HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
-ARCHIVEDIR=brubeck_runtime
-DISTROARCHIVE=$(ARCHIVEDIR).$(HOST_SYSTEM).tar.gz
+ARCHIVE=brubeck_runtime
+DISTROARCHIVE=$(ARCHIVE).$(HOST_SYSTEM).tar.gz
 
 clean-runtime:
 	rm -rf brubeck_runtime
@@ -21,8 +21,8 @@ brubeck_runtime: clean-runtime brubeck
 # Port 22000
 # User dean
 
-$(DISTROARCHIVE): brubeck_runtime
-	tar cvzf $(DISTROARCHIVE) brubeck_runtime
+$(DISTROARCHIVE): $(ARCHIVE)
+	tar cvzf $(DISTROARCHIVE) $(ARCHIVE)
 
 distro: $(DISTROARCHIVE)
 	scp $(DISTROARCHIVE) trouble:$(DISTROARCHIVE)
