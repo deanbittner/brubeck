@@ -5,15 +5,15 @@ ARCHIVE=brubeck_runtime
 DISTROARCHIVE=$(ARCHIVE).$(HOST_SYSTEM).tar.gz
 
 clean-runtime:
-	rm -rf brubeck_runtime
+	rm -rf $(ARCHIVE)
 
-brubeck_runtime: clean-runtime brubeck
-	if [ ! -d brubeck_runtime ] ; then mkdir brubeck_runtime ; fi
-	cp install.sh brubeck_runtime/.
-	cp update.sh brubeck_runtime/.
-	cp brubeck brubeck_runtime/brubeck-dbg
-	cp brubeck brubeck_runtime/.
-	strip brubeck_runtime/brubeck
+$(ARCHIVE): clean-runtime brubeck
+	if [ ! -d $(ARCHIVE) ] ; then mkdir $(ARCHIVE) ; fi
+	cp install.sh $(ARCHIVE)/.
+	cp update.sh $(ARCHIVE)/.
+	cp brubeck $(ARCHIVE)/brubeck-dbg
+	cp brubeck $(ARCHIVE)/.
+	strip $(ARCHIVE)/brubeck
 
 # distro targets require an .ssh/config entry as below (but uncommented)
 # Host trouble
