@@ -9,8 +9,3 @@ command_args="--config=$CONFIG --log=$LOG"
 pidfile="/var/run/brubeck.pid"
 command_background=true
 
-depend() {
-	need net
-	use dns
-}
-
