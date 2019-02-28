@@ -10,6 +10,8 @@ clean-runtime:
 $(ARCHIVE): clean-runtime brubeck
 	if [ ! -d $(ARCHIVE) ] ; then mkdir $(ARCHIVE) ; fi
 	cp install.sh $(ARCHIVE)/.
+	cp brubeck_init.d $(ARCHIVE)/.
+	cp brubeck_init_alpine.d $(ARCHIVE)/.
 	cp update.sh $(ARCHIVE)/.
 	cp brubeck $(ARCHIVE)/brubeck-dbg
 	cp brubeck $(ARCHIVE)/.

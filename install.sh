@@ -60,8 +60,13 @@ function set()
    KEY=$2
    VALUE=$3
    FILE=$4
+   INT=$5
 
-   sed -i -e "s/${MUNGE}/            \"${KEY}\" : \"${VALUE}\"\,/g" $FILE
+   if [ $INT -gt 0 ] ; then
+	sed -i -e "s/${MUNGE}/            \"${KEY}\" : ${VALUE}\,/g" $FILE
+   else
+	sed -i -e "s/${MUNGE}/            \"${KEY}\" : \"${VALUE}\"\,/g" $FILE
+   fi
 }
 
 function getset()
@@ -71,11 +76,12 @@ function getset()
    VALUE=$3
    PROMPT=$4
    FILE=$5
+   INT=$6
 
    read -p "${PROMPT} [${VALUE}]: " RVALUE
    [ ! -z "${RVALUE}" ] && VALUE="${RVALUE}"
 
-   set "${MUNGE}" "${KEY}" "${VALUE}" "${FILE}"
+   set "${MUNGE}" "${KEY}" "${VALUE}" "${FILE}" $INT
 }
 
 echo "$STEP/$TOTAL Configuring ..."
@@ -121,9 +127,9 @@ EOF
     # get the vars
     # server_name
     HOSTNAME=`uname -n`
-    getset "SERVER_NAME" "server_name" "brubeck-${HOSTNAME}" "Enter the server name, used for server metrics" "${CONFIG_WORK}"
-    getset "CARBON_SERVER" "address" "bubble.bottorrent.net" "Enter a graphite/carbon server ip name or number" "${CONFIG_WORK}"
-    getset "BRUBECK_PORT" "port" "8125" "Enter the listening port for brubeck, typically 8125." "${CONFIG_WORK}"
+    getset "SERVER_NAME" "server_name" "brubeck-${HOSTNAME}" "Enter the server name, used for server metrics" "${CONFIG_WORK}" 0
+    getset "CARBON_SERVER" "address" "bubble.bottorrent.net" "Enter a graphite/carbon server ip name or number" "${CONFIG_WORK}" 0
+    getset "BRUBECK_PORT" "port" "8125" "Enter the listening port for brubeck, typically 8125." "${CONFIG_WORK}" 1
 
     read -p "Add datadog configuration [(y/n)n]: " RVALUE
     case $RVALUE in
