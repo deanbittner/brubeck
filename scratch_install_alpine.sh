@@ -54,7 +54,8 @@ SERVER_NAME
 CARBON_SERVER
 	    "port" : 2003,
 	    "frequency" : 10,
-	    "pickle" : false
+	    "pickle" : false,
+	    "expire" : 1
 	}
     ],
     "samplers" :
