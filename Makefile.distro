@@ -13,7 +13,8 @@ $(ARCHIVE): clean-runtime brubeck
 	cp brubeck_init.d $(ARCHIVE)/.
 	cp brubeck_init_alpine.d $(ARCHIVE)/.
 	cp update.sh $(ARCHIVE)/.
-	cp brubeck $(ARCHIVE)/brubeck-dbg
+	cp scratch_install.sh $(ARCHIVE)/.
+	cp scratch_install_alpine.sh $(ARCHIVE)/.
 	cp brubeck $(ARCHIVE)/.
 	strip $(ARCHIVE)/brubeck
 
