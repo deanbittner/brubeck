@@ -23,9 +23,16 @@ $(ARCHIVE): clean-runtime brubeck
 # Hostname trouble.bottorrent.net
 # Port 22000
 # User dean
+INVIDIUSER=dbittner
+INVIDIAKEY=AKCp5cbwdcFgSBXs43J98SYgHgDZhANM7Pot3yha6f9FMQjEeMnSeqT3DyCiyf5YmFTfXC4TT
 
 $(DISTROARCHIVE): $(ARCHIVE)
 	tar cvzf $(DISTROARCHIVE) $(ARCHIVE)
+
+invidi-distro: $(DISTROARCHIVE)
+	curl -u $(INVIDIUSER):$(INVIDIAKEY) -X PUT "http://jfrog.invidi.com/artifactory/rwi-files-local/latest/$(DISTROARCHIVE)" -T $(DISTROARCHIVE)
+	curl -u $(INVIDIUSER):$(INVIDIAKEY) -X PUT "http://jfrog.invidi.com/artifactory/rwi-files-local/latest/scratch_install_brubeck_alpine.sh" -T scratch_install_alpine_invidi.sh
+	curl -u $(INVIDIUSER):$(INVIDIAKEY) -X PUT "http://jfrog.invidi.com/artifactory/rwi-files-local/latest/scratch_install_brubeck.sh" -T scratch_install.sh
 
 distro: $(DISTROARCHIVE)
 	scp $(DISTROARCHIVE) trouble:$(DISTROARCHIVE)
