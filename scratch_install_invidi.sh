@@ -8,7 +8,7 @@ while [ -z $FROGNAME ] ; do
 done
 
 rm -f ${COMPONENT}.${HOST_SYSTEM}.tar.gz
-wget --user ${FROGNAME} --ask-pass http://jfrog.invidi.com:80/artifactory/rwi-files-local/latest/${COMPONENT}.${HOST_SYSTEM}.tar.gz
+curl -u ${FROGNAME} -O "http://jfrog.invidi.com:80/artifactory/rwi-files-local/latest/${COMPONENT}.${HOST_SYSTEM}.tar.gz"
 tar xvzf ${COMPONENT}.${HOST_SYSTEM}.tar.gz
 pushd ${COMPONENT}
 ./install.sh
