@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TOTAL=5
 STEP=1
@@ -89,7 +89,7 @@ STEP=$((STEP+1))
 echo ""
 VALUE=n
 read -p "Reconfigure config file [(y/n)n]: " RVALUE
-[ ! -z "${RVALUE}" ] && VALUE="${RVALUE}"
+[ ! -z $RVALUE ] && VALUE=$RVALUE
 if [ $VALUE == y ] ; then
     [ -f /etc/brubeck/config.json ] && mv /etc/brubeck/config.json /etc/brubeck/config.json.old
     CONFIG_WORK="/tmp/config.json"
@@ -154,7 +154,7 @@ EOF
 	    ;;	
 
 	*)
-   	    sed -i -e "/\"pickle\" : false/r", \"expire\" : 1"
+   	    sed -i -e "/\"pickle\" : false/r\", \"expire\" : 1"
 	    ;;
     esac
 
