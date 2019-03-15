@@ -154,6 +154,7 @@ EOF
 	    ;;	
 
 	*)
+   	    sed -i -e "/\"pickle\" : false/r", \"expire\" : 1"
 	    ;;
     esac
 
