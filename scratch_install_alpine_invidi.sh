@@ -1,19 +1,18 @@
 #!/bin/bash -x
 
+UID=$1
+[ -z $UID ] && UID=`uname -n`
+
 HOST_SYSTEM=`uname -s`
 COMPONENT=brubeck_runtime
 
-while [ -z $FROGNAME ] ; do
-    read -p "Please enter your jFrog username: " FROGNAME
-done
+INVIDIUSER=dbittner
+INVIDIAKEY=AKCp5cbwdcFgSBXs43J98SYgHgDZhANM7Pot3yha6f9FMQjEeMnSeqT3DyCiyf5YmFTfXC4TT
 
 rm -f ${COMPONENT}.${HOST_SYSTEM}.tar.gz
-curl -u ${FROGNAME} -O "http://jfrog.invidi.com:80/artifactory/rwi-files-local/latest/${COMPONENT}.${HOST_SYSTEM}.tar.gz"
+curl -u ${INVIDIUSER}:${INVIDIAKEY} -O "http://jfrog.invidi.com:80/artifactory/rwi-files-local/latest/${COMPONENT}.${HOST_SYSTEM}.tar.gz"
 tar xvzf ${COMPONENT}.${HOST_SYSTEM}.tar.gz
 pushd ${COMPONENT}
-
-rc-service brubeck stop
-sleep 1
 
 [ -f /usr/local/sbin/brubeck ] && mv /usr/local/sbin/brubeck /usr/local/sbin/brubeck.old
 [ ! -d /usr/local/sbin ] && mkdir -p /usr/local/sbin
@@ -75,9 +74,8 @@ BRUBECK_PORT
     ]
 }
 EOF
-
-HOSTNAME=`uname -n`
-set "SERVER_NAME" "server_name" "brubeck-${HOSTNAME}" "${CONFIG_WORK}" 0
+       
+set "SERVER_NAME" "server_name" "brubeck-${UID}" "${CONFIG_WORK}" 0
 #set "CARBON_SERVER" "address" "bubble.bottorrent.net" "${CONFIG_WORK}" 0
 set "CARBON_SERVER" "address" "10.120.95.115" "${CONFIG_WORK}" 0
 set "BRUBECK_PORT" "port" 8125 "${CONFIG_WORK}" 1
@@ -85,9 +83,6 @@ set "BRUBECK_PORT" "port" 8125 "${CONFIG_WORK}" 1
 [ ! -d /etc/brubeck ] && mkdir -p /etc/brubeck
 cp "${CONFIG_WORK}" /etc/brubeck/config.json
 chown -R root.root /etc/brubeck/config.json
-
-[ ! -d /var/lock/subsys ] && mkdir -p /var/lock/subsys
-rc-service brubeck start
 
 popd
 rm -rf ${COMPONENT}
