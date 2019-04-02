@@ -2,21 +2,23 @@
     "sharding" : false,
     "server_name" : "brubeck_test",
     "dumpfile" : "/var/log/brubeck.dump",
-    "capacity" : 15,
+    "capacity" : 2000,
     "backends" :
     [
 	{
 	    "type" : "carbon",
-	    "address" : "127.0.0.1",
+	    "address" : "192.168.250.212",
 	    "port" : 2003,
 	    "frequency" : 10,
 	    "pickle" : false
 	},
 	{
 	    "type" : "datadog",
-	    "address" : "localhost",
+	    "address" : "192.168.250.212",
 	    "port" : 9125,
 	    "frequency" : 10,
+	    "tagify" : 1,
+	    "tags" : "realm:local,region:canada,cost:zero,team:rwi,service:synth,cluster:se",
 	    "filter" : "send|fail|error|FAIL|ERROR",
 	    "expire" : 1
 	 }

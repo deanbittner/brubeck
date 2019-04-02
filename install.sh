@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 TOTAL=5
 STEP=1
@@ -60,8 +60,13 @@ function set()
    KEY=$2
    VALUE=$3
    FILE=$4
+   INT=$5
 
-   sed -i -e "s/${MUNGE}/            \"${KEY}\" : \"${VALUE}\"\,/g" $FILE
+   if [ $INT -gt 0 ] ; then
+	sed -i -e "s/${MUNGE}/            \"${KEY}\" : ${VALUE}\,/g" $FILE
+   else
+	sed -i -e "s/${MUNGE}/            \"${KEY}\" : \"${VALUE}\"\,/g" $FILE
+   fi
 }
 
 function getset()
@@ -71,11 +76,12 @@ function getset()
    VALUE=$3
    PROMPT=$4
    FILE=$5
+   INT=$6
 
    read -p "${PROMPT} [${VALUE}]: " RVALUE
    [ ! -z "${RVALUE}" ] && VALUE="${RVALUE}"
 
-   set "${MUNGE}" "${KEY}" "${VALUE}" "${FILE}"
+   set "${MUNGE}" "${KEY}" "${VALUE}" "${FILE}" $INT
 }
 
 echo "$STEP/$TOTAL Configuring ..."
@@ -83,7 +89,7 @@ STEP=$((STEP+1))
 echo ""
 VALUE=n
 read -p "Reconfigure config file [(y/n)n]: " RVALUE
-[ ! -z "${RVALUE}" ] && VALUE="${RVALUE}"
+[ ! -z $RVALUE ] && VALUE=$RVALUE
 if [ $VALUE == y ] ; then
     [ -f /etc/brubeck/config.json ] && mv /etc/brubeck/config.json /etc/brubeck/config.json.old
     CONFIG_WORK="/tmp/config.json"
@@ -121,9 +127,9 @@ EOF
     # get the vars
     # server_name
     HOSTNAME=`uname -n`
-    getset "SERVER_NAME" "server_name" "brubeck-${HOSTNAME}" "Enter the server name, used for server metrics" "${CONFIG_WORK}"
-    getset "CARBON_SERVER" "address" "bubble.bottorrent.net" "Enter a graphite/carbon server ip name or number" "${CONFIG_WORK}"
-    getset "BRUBECK_PORT" "port" "8125" "Enter the listening port for brubeck, typically 8125." "${CONFIG_WORK}"
+    getset "SERVER_NAME" "server_name" "brubeck-${HOSTNAME}" "Enter the server name, used for server metrics" "${CONFIG_WORK}" 0
+    getset "CARBON_SERVER" "address" "bubble.bottorrent.net" "Enter a graphite/carbon server ip name or number" "${CONFIG_WORK}" 0
+    getset "BRUBECK_PORT" "port" "8125" "Enter the listening port for brubeck, typically 8125." "${CONFIG_WORK}" 1
 
     read -p "Add datadog configuration [(y/n)n]: " RVALUE
     case $RVALUE in
@@ -148,6 +154,7 @@ EOF
 	    ;;	
 
 	*)
+   	    sed -i -e "/\"pickle\" : false/r\", \"expire\" : 1"
 	    ;;
     esac
 
