@@ -9,7 +9,7 @@
 #ifdef __gnu_linux__
 #define LARGE_SOCK_SIZE 33554431
 #else
-#define LARGE_SOCK_SIZE 4096
+#define LARGE_SOCK_SIZE 65565
 #endif
 
 char *find_substr(const char *s, const char *find, size_t slen)
