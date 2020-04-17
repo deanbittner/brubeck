@@ -4,7 +4,7 @@ VERSION_ID="unspecified"
 REACTORHOME=../reactor
 
 GIT_SHA = $(shell git rev-parse --short HEAD)
-LIBS = -lm -pthread /opt/local/lib/libcrypto.a /opt/local/lib/libjansson.a -L$(REACTORHOME)/src/net -lnet
+LIBS = -lm -pthread /opt/local/lib/libcrypto.a /opt/local/lib/libjansson.a -L$(REACTORHOME)/src/net -lnet -L$(REACTORHOME)/src/data -ldata
 CC = gcc
 CC = clang
 CXX = g++
