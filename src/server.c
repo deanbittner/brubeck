@@ -40,31 +40,47 @@ update_proctitle(struct brubeck_server *server)
 
   PUTS("[%s] [ " UTF8_UPARROW, server->config_name);
 
-  for (i = 0; i < server->active_backends; ++i) {
-    struct brubeck_backend *backend = server->backends[i];
-    if (backend->type == BRUBECK_BACKEND_CARBON) {
-      struct brubeck_carbon *carbon = (struct brubeck_carbon *)backend;
-      double sent = carbon->sent;
+  for (i = 0; i < server->active_backends; ++i)
+    {
+      struct brubeck_backend *backend = server->backends[i];
+      if (backend->type == BRUBECK_BACKEND_CARBON)
+        {
+          struct brubeck_carbon *carbon = (struct brubeck_carbon *)backend;
+          double sent = carbon->sent;
 
-      for (j = 0; j < 7 && sent >= 1024.0; ++j)
-	sent /= 1024.0;
+          for (j = 0; j < 7 && sent >= 1024.0; ++j)
+            sent /= 1024.0;
 
-      PUTS("%s #%d %.1f%s%s",
-	   (i > 0) ? "," : "",
-	   i + 1, sent, size_suffix[j],
-	   (carbon->out_sock >= 0) ? "" : " (dc)");
+          PUTS("%s #%d %.1f%s%s",
+               (i > 0) ? "," : "",
+               i + 1, sent, size_suffix[j],
+               (carbon->out_sock >= 0) ? "" : " (dc)");
+        }
+      else if (backend->type == BRUBECK_BACKEND_RWI_CARBON)
+        {
+          struct brubeck_carbon *carbon = (struct brubeck_carbon *)backend;
+          double sent = carbon->sent;
+
+          for (j = 0; j < 7 && sent >= 1024.0; ++j)
+            sent /= 1024.0;
+
+          PUTS("%s #%d %.1f%s%s",
+               (i > 0) ? "," : "",
+               i + 1, sent, size_suffix[j],
+               (carbon->out_sock >= 0) ? "" : " (dc)");
+        }
     }
-  }
 
   PUTS(" ] [ " UTF8_DOWNARROW);
 
-  for (i = 0; i < server->active_samplers; ++i) {
-    struct brubeck_sampler *sampler = server->samplers[i];
-    PUTS("%s :%d %d/s",
-	 (i > 0) ? "," : "",
-	 (int)ntohs(sampler->addr.sin_port),
-	 (int)sampler->current_flow);
-  }
+  for (i = 0; i < server->active_samplers; ++i)
+    {
+      struct brubeck_sampler *sampler = server->samplers[i];
+      PUTS("%s :%d %d/s",
+           (i > 0) ? "," : "",
+           (int)ntohs(sampler->addr.sin_port),
+           (int)sampler->current_flow);
+    }
 
   PUTS(" ]");
   setproctitle("brubeck", buf);
@@ -103,22 +119,31 @@ static void load_backends(struct brubeck_server *server, json_t *backends)
   size_t idx;
   json_t *b;
 
-  json_array_foreach(backends, idx, b) {
-    const char *type = json_string_value(json_object_get(b, "type"));
-    struct brubeck_backend *backend = NULL;
+  json_array_foreach(backends, idx, b)
+    {
+      const char *type = json_string_value(json_object_get(b, "type"));
+      struct brubeck_backend *backend = NULL;
 
-    if (type && !strcmp(type, "carbon"))
-      {
-	backend = brubeck_carbon_new(server, b);
-	server->backends[server->active_backends++] = backend; 
-      }
-    else if (type && !strcmp(type, "datadog")) {
-      backend = brubeck_datadog_new(server, b);
-      server->backends[server->active_backends++] = backend; 
-    } else {
-      log_splunk("backend=%s event=invalid_backend", type);
+      if (type && !strcmp(type, "carbon"))
+        {
+          backend = brubeck_carbon_new(server, b);
+          server->backends[server->active_backends++] = backend; 
+        }
+      else if (type && !strcmp(type, "rwi_carbon"))
+        {
+          backend = brubeck_rwi_carbon_new(server, b);
+          server->backends[server->active_backends++] = backend; 
+        }
+      else if (type && !strcmp(type, "datadog"))
+        {
+          backend = brubeck_datadog_new(server, b);
+          server->backends[server->active_backends++] = backend; 
+        }
+      else
+        {
+          log_splunk("backend=%s event=invalid_backend", type);
+        }
     }
-  }
   gh_active_backends = server->active_backends;
 }
 
@@ -134,6 +159,9 @@ static void load_samplers(struct brubeck_server *server, json_t *samplers)
       server->samplers[server->active_samplers++] = brubeck_statsd_new(server, s);
       /* } else if (type && !strcmp(type, "statsd-secure")) { */
       /* 	server->samplers[server->active_samplers++] = brubeck_statsd_secure_new(server, s); */
+    }
+    else if (type && !strcmp(type, "rwid")) {
+      server->samplers[server->active_samplers++] = brubeck_rwid_new(server, s);
     } else {
       log_splunk("sampler=%s event=invalid_sampler", type);
     }

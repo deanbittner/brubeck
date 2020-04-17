@@ -69,7 +69,7 @@ gauge__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
   pthread_spin_unlock(&metric->lock);
 
   if (metric->expire > BRUBECK_EXPIRE_INACTIVE)
-    sample(metric->key, value, opaque);
+    sample(metric->key, value, opaque, metric->timestamp);
 }
 
 
@@ -104,7 +104,7 @@ meter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *opa
   pthread_spin_unlock(&metric->lock);
 
   if (metric->expire > BRUBECK_EXPIRE_INACTIVE)
-    sample(metric->key, value, opaque);
+    sample(metric->key, value, opaque, metric->timestamp);
 }
 
 
@@ -147,7 +147,7 @@ counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *o
   pthread_spin_unlock(&metric->lock);
 
   if (metric->expire > BRUBECK_EXPIRE_INACTIVE)
-    sample(metric->key, value, opaque);
+    sample(metric->key, value, opaque, metric->timestamp);
 }
 
 
@@ -197,7 +197,7 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
   memcpy(key, metric->key, metric->key_len);
 
   WITH_SUFFIX(".count") {
-    sample(key, hsample.count, opaque);
+    sample(key, hsample.count, opaque, metric->timestamp);
   }
 
   /* if there have been no metrics during this sampling period,
@@ -206,43 +206,43 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
     return;
 
   WITH_SUFFIX(".min") {
-    sample(key, hsample.min, opaque);
+    sample(key, hsample.min, opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".max") {
-    sample(key, hsample.max, opaque);
+    sample(key, hsample.max, opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".sum") {
-    sample(key, hsample.sum, opaque);
+    sample(key, hsample.sum, opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".mean") {
-    sample(key, hsample.mean, opaque);
+    sample(key, hsample.mean, opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".median") {
-    sample(key, hsample.median, opaque);
+    sample(key, hsample.median, opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".percentile.75") {
-    sample(key, hsample.percentile[PC_75], opaque);
+    sample(key, hsample.percentile[PC_75], opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".percentile.95") {
-    sample(key, hsample.percentile[PC_95], opaque);
+    sample(key, hsample.percentile[PC_95], opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".percentile.98") {
-    sample(key, hsample.percentile[PC_98], opaque);
+    sample(key, hsample.percentile[PC_98], opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".percentile.99") {
-    sample(key, hsample.percentile[PC_99], opaque);
+    sample(key, hsample.percentile[PC_99], opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".percentile.999") {
-    sample(key, hsample.percentile[PC_999], opaque);
+    sample(key, hsample.percentile[PC_999], opaque, metric->timestamp);
   }
 }
 

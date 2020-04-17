@@ -4,6 +4,7 @@
 enum brubeck_sampler_t {
 	BRUBECK_SAMPLER_STATSD,
 	BRUBECK_SAMPLER_STATSD_SECURE,
+	BRUBECK_SAMPLER_RWID
 };
 
 struct brubeck_sampler {
@@ -35,6 +36,7 @@ static inline const char *brubeck_sampler_name(struct brubeck_sampler *sampler)
 }
 
 #include "samplers/statsd.h"
+#include "samplers/rwid.h"
 
 #endif
 

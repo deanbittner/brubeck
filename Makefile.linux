@@ -13,6 +13,7 @@ CFLAGS = -g -Wall -O3 -Wno-strict-aliasing -Isrc -I/opt/local/include -Ivendor/c
 SOURCES = \
 	src/backend.c \
 	src/backends/carbon.c \
+	src/backends/rwi_carbon.c \
 	src/backends/datadog.c \
 	src/bloom.c \
 	src/city.c \
@@ -23,6 +24,7 @@ SOURCES = \
 	src/metric.c \
 	src/sampler.c \
 	src/samplers/statsd.c \
+	src/samplers/rwid.c \
 	src/server.c \
 	src/setproctitle.c \
 	src/slab.c \

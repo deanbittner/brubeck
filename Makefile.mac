@@ -14,6 +14,7 @@ SOURCES = \
 	src/timing_mach.c \
 	src/backend.c \
 	src/backends/carbon.c \
+	src/backends/rwi_carbon.c \
 	src/backends/datadog.c \
 	src/bloom.c \
 	src/city.c \
@@ -24,6 +25,7 @@ SOURCES = \
 	src/metric.c \
 	src/sampler.c \
 	src/samplers/statsd.c \
+	src/samplers/rwid.c \
 	src/server.c \
 	src/setproctitle.c \
 	src/slab.c \

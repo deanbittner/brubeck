@@ -50,7 +50,7 @@ datadog_disconnect(struct brubeck_datadog *datadog)
 }
 
 static void
-datadog_plaintext_each(const char *key, value_t value, void *backend)
+datadog_plaintext_each(const char *key, value_t value, void *backend, int timestamp)
 {
   struct brubeck_datadog *datadog =
     (struct brubeck_datadog *)backend;

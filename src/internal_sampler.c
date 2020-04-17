@@ -14,19 +14,19 @@ brubeck_internal__sample(struct brubeck_metric *metric, brubeck_sample_cb sample
 	WITH_SUFFIX(".metrics") {
 		value = brubeck_atomic_swap(&stats->live.metrics, 0);
 		stats->sample.metrics = value;
-		sample(key, (value_t)value, opaque);
+		sample(key, (value_t)value, opaque, metric->timestamp);
 	}
 
 	WITH_SUFFIX(".errors") {
 		value = brubeck_atomic_swap(&stats->live.errors, 0);
 		stats->sample.errors = value;
-		sample(key, (value_t)value, opaque);
+		sample(key, (value_t)value, opaque, metric->timestamp);
 	}
 
 	WITH_SUFFIX(".unique_keys") {
 		value = brubeck_atomic_fetch(&stats->live.unique_keys);
 		stats->sample.unique_keys = value;
-		sample(key, (value_t)value, opaque);
+		sample(key, (value_t)value, opaque, metric->timestamp);
 	}
 
 	/* Secure statsd endpoint */

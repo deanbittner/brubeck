@@ -50,7 +50,8 @@ static void carbon_disconnect(struct brubeck_carbon *self)
 static void plaintext_each(
 	const char *key,
 	value_t value,
-	void *backend)
+	void *backend,
+        int timestamp)
 {
 	struct brubeck_carbon *carbon = (struct brubeck_carbon *)backend;
 	char buffer[1024];
@@ -192,7 +193,8 @@ static void pickle1_flush(void *backend)
 static void pickle1_each(
 	const char *key,
 	value_t value,
-	void *backend)
+	void *backend,
+        int timestamp)
 {
 	struct brubeck_carbon *carbon = (struct brubeck_carbon *)backend;
 	uint8_t key_len = (uint8_t)strlen(key);

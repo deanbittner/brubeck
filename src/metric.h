@@ -40,6 +40,7 @@ struct brubeck_metric {
   uint16_t key_len;
   uint8_t type;
   uint8_t expire;
+  uint32_t timestamp;
 
   union {
     struct {
@@ -58,7 +59,7 @@ struct brubeck_metric {
 typedef void (*brubeck_sample_cb)(
 	const char *key,
 	value_t value,
-	void *backend);
+	void *backend, int timestamp);
 
 void brubeck_metric_sample(struct brubeck_metric *metric, brubeck_sample_cb cb, void *backend);
 void brubeck_metric_record(struct brubeck_metric *metric, value_t value, value_t sample_rate, uint8_t modifiers);
