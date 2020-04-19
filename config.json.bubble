@@ -1,0 +1,28 @@
+{
+    "sharding" : false,
+    "server_name" : "brubeck_huginn",
+    "dumpfile" : "/var/log/brubeck.dump",
+    "capacity" : 2000,
+    "backends" :
+    [
+	{
+	    "type" : "carbon",
+	    "address" : "bubble.bottorrent.net",
+	    "port" : 2003,
+	    "frequency" : 10,
+	    "pickle" : false,
+	    "expire" : 1
+	}
+    ],
+    "samplers" :
+    [
+	{
+	    "type" : "statsd",
+	    "address" : "0.0.0.0",
+	    "port" : 8125,
+	    "workers" : 8,
+	    "multisock" : true,
+	    "multimsg" : 0
+	    }
+    ]
+}

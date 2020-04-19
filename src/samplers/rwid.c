@@ -331,6 +331,7 @@ void brubeck_rwid_packet_parse(struct brubeck_server *server, char *buffer, char
           metric = brubeck_metric_find(server, rwid_key, rwid_keylen, msg.type);
           if (metric != NULL)
             {
+              metric->timestamp = msg.timestamp;
               brubeck_metric_record(metric, msg.value, msg.sample_freq, msg.modifiers);
               if (gh_log_all_metrics > 0)
                 {
