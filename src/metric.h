@@ -7,6 +7,7 @@ enum brubeck_metric_t {
 	BRUBECK_MT_COUNTER, /** C */
 	BRUBECK_MT_HISTO, /** h */
 	BRUBECK_MT_TIMER, /** ms */
+	BRUBECK_MT_TELEM, /** m */
 	BRUBECK_MT_INTERNAL_STATS
 };
 

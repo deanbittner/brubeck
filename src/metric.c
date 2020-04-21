@@ -152,7 +152,7 @@ counter__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void *o
 
 
 /*********************************************
- * Histogram / Timer
+ * Histogram / Timer/ Telem
  *
  * ALLOC: mt + 16 + 4
  *********************************************/
@@ -277,6 +277,12 @@ static struct brubeck_metric__proto {
 		   },
 
 		   /* Timer -- uses same implementation as histogram */
+		   {
+		    &histogram__record,
+		    &histogram__sample
+		   },
+
+		   /* Telem -- uses same implementation as histogram */
 		   {
 		    &histogram__record,
 		    &histogram__sample

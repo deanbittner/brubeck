@@ -215,7 +215,7 @@ int brubeck_rwid_msg_parse(struct brubeck_rwid_msg *msg, char *buffer, char *end
             buffer++;
           }
         else
-          msg->type = BRUBECK_MT_METER; 
+          msg->type = BRUBECK_MT_TELEM; 
       
         break;
       }
@@ -289,7 +289,7 @@ int brubeck_rwid_msg_parse(struct brubeck_rwid_msg *msg, char *buffer, char *end
 static void
 _key2rwidkey (char *key, int keylen, int timestamp, char *rwidkey, int *rwid_keylen)
 {
-  sprintf (rwidkey, "%.*s|%d\n", keylen, key, timestamp);
+  sprintf (rwidkey, "%.*s|%d|", keylen, key, timestamp);
   *rwid_keylen = strlen (rwidkey);
 }
 
@@ -381,6 +381,9 @@ void brubeck_rwid_packet_parse(struct brubeck_server *server, char *buffer, char
                       break;
                     case BRUBECK_MT_TIMER:
                       type = "timer";
+                      break;
+                    case BRUBECK_MT_TELEM:
+                      type = "telem";
                       break;
                     default:
                       type = "unknown";

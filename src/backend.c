@@ -28,6 +28,7 @@ expire_metric(struct brubeck_metric *mt, void *_)
 	{	
 	case BRUBECK_MT_HISTO:
 	case BRUBECK_MT_TIMER:
+	case BRUBECK_MT_TELEM:
 	  brubeck_histo_empty(&mt->as.histogram);
 		break;
 	default:

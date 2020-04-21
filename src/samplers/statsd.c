@@ -215,7 +215,7 @@ int brubeck_statsd_msg_parse(struct brubeck_statsd_msg *msg, char *buffer, char 
           buffer++;
         }
         else
-          msg->type = BRUBECK_MT_METER; 
+          msg->type = BRUBECK_MT_TELEM; 
       
         break;
       }
@@ -337,6 +337,9 @@ void brubeck_statsd_packet_parse(struct brubeck_server *server, char *buffer, ch
             break;
           case BRUBECK_MT_TIMER:
             type = "timer";
+            break;
+          case BRUBECK_MT_TELEM:
+            type = "telem";
             break;
           default:
             type = "unknown";

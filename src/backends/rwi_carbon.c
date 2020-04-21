@@ -56,19 +56,32 @@ static void plaintext_each(
   struct brubeck_rwi_carbon *rwi_carbon = (struct brubeck_rwi_carbon *)backend;
   char buffer[1024];
   char *ptr = buffer;
-  size_t key_len = strlen(key);
+  size_t key_len = 0;
   ssize_t wr;
   char *pc = NULL;
+  char *pic = NULL;
 
   if (!rwi_carbon_is_connected(rwi_carbon))
     return;
 
+  key_len = strlen (key);
   pc = strchr (key, '|');
   if (pc != NULL)
     key_len = pc - key;
 
   memcpy(ptr, key, key_len);
   ptr += key_len;
+
+  pic = strrchr (key, '|');
+  if (pic != NULL && pic != pc)
+    {
+      /* append the histo portion of the key */
+      pic++;
+      key_len = strlen (pic);
+      memcpy(ptr, pic, key_len);
+      ptr += key_len;
+    }
+
   *ptr++ = ' ';
 
   ptr += brubeck_ftoa(ptr, value);
