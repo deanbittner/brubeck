@@ -78,11 +78,14 @@ void brubeck_histo_sample(
 	sample->median = histo_percentile(histo, 0.5f);
 	sample->count = histo->count;
 
+	sample->percentile[PC_5] = histo_percentile(histo, 0.05f);
+	sample->percentile[PC_10] = histo_percentile(histo, 0.10f);
+	sample->percentile[PC_25] = histo_percentile(histo, 0.25f);
+
 	sample->percentile[PC_75] = histo_percentile(histo, 0.75f);
+	sample->percentile[PC_90] = histo_percentile(histo, 0.90f);
 	sample->percentile[PC_95] = histo_percentile(histo, 0.95f);
-	sample->percentile[PC_98] = histo_percentile(histo, 0.98f);
 	sample->percentile[PC_99] = histo_percentile(histo, 0.99f);
-	sample->percentile[PC_999] = histo_percentile(histo, 0.999f);
 }
 
 void brubeck_histo_empty(struct brubeck_histo *histo)

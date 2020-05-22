@@ -225,24 +225,32 @@ histogram__sample(struct brubeck_metric *metric, brubeck_sample_cb sample, void 
     sample(key, hsample.median, opaque, metric->timestamp);
   }
 
+  WITH_SUFFIX(".percentile.5") {
+    sample(key, hsample.percentile[PC_5], opaque, metric->timestamp);
+  }
+
+  WITH_SUFFIX(".percentile.10") {
+    sample(key, hsample.percentile[PC_10], opaque, metric->timestamp);
+  }
+
+  WITH_SUFFIX(".percentile.25") {
+    sample(key, hsample.percentile[PC_25], opaque, metric->timestamp);
+  }
+
   WITH_SUFFIX(".percentile.75") {
     sample(key, hsample.percentile[PC_75], opaque, metric->timestamp);
+  }
+
+  WITH_SUFFIX(".percentile.90") {
+    sample(key, hsample.percentile[PC_90], opaque, metric->timestamp);
   }
 
   WITH_SUFFIX(".percentile.95") {
     sample(key, hsample.percentile[PC_95], opaque, metric->timestamp);
   }
 
-  WITH_SUFFIX(".percentile.98") {
-    sample(key, hsample.percentile[PC_98], opaque, metric->timestamp);
-  }
-
   WITH_SUFFIX(".percentile.99") {
     sample(key, hsample.percentile[PC_99], opaque, metric->timestamp);
-  }
-
-  WITH_SUFFIX(".percentile.999") {
-    sample(key, hsample.percentile[PC_999], opaque, metric->timestamp);
   }
 }
 
