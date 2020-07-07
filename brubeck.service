@@ -1,0 +1,9 @@
+[Unit]
+Description=Brubeck statsd aggregator
+After=network.target
+
+[Service]
+ExecStart=/usr/local/sbin/brubeck --log /var/log/brubeck.log --config /etc/brubeck/config.json
+
+[Install]
+WantedBy=multi-user.target
