@@ -127,8 +127,6 @@ static void load_samplers(struct brubeck_server *server, json_t *samplers)
 
 		if (type && !strcmp(type, "statsd")) {
 			server->samplers[server->active_samplers++] = brubeck_statsd_new(server, s);
-		} else if (type && !strcmp(type, "statsd-secure")) {
-			server->samplers[server->active_samplers++] = brubeck_statsd_secure_new(server, s);
 		} else {
 			log_splunk("sampler=%s event=invalid_sampler", type);
 		}
