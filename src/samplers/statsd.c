@@ -198,12 +198,13 @@ int brubeck_statsd_msg_parse(struct brubeck_statsd_msg *msg, char *buffer, char 
 			case 'C': msg->type = BRUBECK_MT_COUNTER; break;
 			case 'h': msg->type = BRUBECK_MT_HISTO; break;
 			case 'm':
-					  ++buffer;
-					  if (*buffer == 's') {
-						  msg->type = BRUBECK_MT_TIMER;
-						  break;
-					  }
-
+					if (buffer[1] == 's') {
+						msg->type = BRUBECK_MT_TIMER;
+						buffer++;
+					} else {
+						msg->type = BRUBECK_MT_HISTO;
+					}
+					break;
 			default:
 					  return -1;
 		}
